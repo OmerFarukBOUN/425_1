@@ -2,6 +2,15 @@
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
+int yyerror(const char *s);
+int yycolumn = 1;
+#define LINEBUF_LEN 256
+char linebuf[LINEBUF_LEN] = {0};
+
+#define YY_USER_ACTION strcpy(linebuf + yycolumn - 1, yytext);\
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng;
 %}
 
 %option yylineno
@@ -47,10 +56,11 @@
 "%"              { return '%'; }
 "!"              { return '!'; }
 [ \t\n]          ; // Skip whitespace and newline characters
+[ \t]          ; // Skip whitespace and newline characters
+\n               {yycolumn = 1; memset(linebuf, 0, LINEBUF_LEN);}
 [a-zA-Z][a-zA-Z0-9]* { return IDENTIFIER; }
 [0-9]+           { return NUMBER; }
 "/*"([^*]|"*"[^/])*"*/" { /* Ignore comments */ }
-
 .                { fprintf(stderr, "Unexpected character: %s\n", yytext); exit(1); }
 
 %%

@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define YYDEBUG 1
 int yylex();
 int yyerror(const char *);
 extern int yylineno;
+#define LINEBUF_LEN 256
+extern char linebuf[LINEBUF_LEN];
 
 #define YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_POINTER
@@ -16,14 +18,14 @@ typedef struct {
 
 %}
 
-%token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO
+%token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
 %token IDENTIFIER NUMBER NE LE GE
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
 %nonassoc '<' '>'
-
-
+%locations
+%debug
 %%
 
 Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
@@ -136,11 +138,18 @@ ExpressionList : Expression { /* Process single expression */ }
 
 %%
 int yyerror(const char *s) {
-    printf("Syntax error at line %d\n", yylineno);
+    printf("%s\n", linebuf);
+    for(int i = 0; i < yylloc.first_column - 1; i++){
+        printf(" ");
+    }
+    printf("^\n");
+    printf("%s at line %d column %d\n", s, yylineno, yylloc.first_column);
+    printf("----\n");
     return 0;
 }
 int main() {
     yyparse();
     return 0;
 }
+
 

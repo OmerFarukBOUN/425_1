@@ -1,5 +1,5 @@
 LEX  = flex -I
-YACC = bison -dy -Wcounterexamples
+YACC = bison -tdy -Wcounterexamples
 
 CC   = gcc -DYYDEBUG=1
 
