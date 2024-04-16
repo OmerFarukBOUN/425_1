@@ -1,0 +1,5 @@
+begin
+    if 3 < 4a then writaeline(4) !;
+    if 3 < 4 then writeline(4) !
+end
+.
