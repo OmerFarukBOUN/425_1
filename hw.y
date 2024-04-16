@@ -36,10 +36,12 @@ FunctionList : FunctionBlock
              ;
 
 FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
+              | FUNCTION error '.'
               ;
 
 IdentifierList : IDENTIFIER { $$ = $1; }
                | IdentifierList ',' IDENTIFIER { /* Combine identifiers */ }
+               | error ',' IDENTIFIER
                ;
 
 Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
@@ -67,7 +69,7 @@ ArrList : Array { $$ = $1; }
         | ArrList ',' Array { /* Combine arrays */ }
         ;
 
-Array : IDENTIFIER '[' NUMBER ']' { /* Process array */ }
+Array : IDENTIFIER '[' Expression ']' { /* Process array */ }
       ;
 
 ProcDecl : PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
