@@ -33,6 +33,7 @@ Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
 
 FunctionList : FunctionBlock
              | FunctionList FunctionBlock { /* Combine function blocks */ } 
+             | error FunctionBlock
              ;
 
 FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
@@ -54,6 +55,7 @@ ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
 
 ConstAssignmentList : IDENTIFIER '=' NUMBER { /* Process constant assignment */ }
                     | ConstAssignmentList ',' IDENTIFIER '=' NUMBER { /* Combine constant assignments */ }
+                    | error ',' IDENTIFIER '=' NUMBER
                     ;
 
 VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
