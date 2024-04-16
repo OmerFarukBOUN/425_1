@@ -46,7 +46,7 @@ Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
-          | error ';'
+          | CONST error ';'
           | /* Empty */ { /* No constant declaration */ }
           ;
 
@@ -55,6 +55,7 @@ ConstAssignmentList : IDENTIFIER '=' NUMBER { /* Process constant assignment */ 
                     ;
 
 VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
+        | VAR error ';'
         | /* Empty */ { /* No variable declaration */ }
         ;
 
