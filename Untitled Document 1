@@ -1,0 +1,43 @@
+Program := 		FunctionList Block '.'
+FunctionList :=		FunctionBlock | FunctionList FunctionBlock | ε
+FunctionBlock :=	'function' identifier '(' IdentifierList ')' 'do' Block '.'
+Block := 		ConstDecl VarDec ProcDecl Statement
+ConstDecl := 		'const' ConstAssignmentList ';' | ε
+ConstAssignmentList := 	identifier '=' number
+| ConstAssignmentList ',' identifier '=' number
+VarDecl := 		'var' IdentifierList ';' | ε
+ArrDec :=		'arr' ArrList ';' | ε
+ArrList :=		Array | ArrList ',' Array
+IdentifierList := 	identifier | IdentifierList ',' identifier
+ProcDecl := 		ProcDecl 'procedure' identifier ';' Block ';' | ε
+Statement := 		identifier ':=' Expression
+| 'call' identifier
+| 'begin' StatementList 'end'
+| 'if' Condition 'then' Statement
+| 'if' Condition 'then' Statement 'else' Statement
+| 'while' Condition 'do' Statement
+| 'for' identifier ':=' Expression 'to' Expression 'do' Statement
+| 'break'
+| 'return' Expression
+| 'read' '(' identifier ')'
+| 'write' '(' Expression ')'
+| 'writeline' '(' Expression ')'
+| ε
+StatementList := 	Statement | StatementList ';' Statement
+Condition := 		'odd' Expression | Expression Relation Expression
+Relation := 		'=' | '<>' | '<' | '>' | '<=' | '>='
+ExpressionList := 	Expression | ExpressionList ';' Expression
+Expression := 		Term | AddSubOperator Term
+| Expression AddSubOperator Term
+AddSubOperator := 	'+' | '-'
+Term := 			Factor | Term MulDivOperator Factor
+MulDivOperator := 	'*' | '/' | '%'
+Factor := 		identifier | number | '(' Expression ')' | Array | FuncCall
+Array :=		identifier '[' Expression ']'
+FuncCall:=		identifier '(' ExpressionList ')'
+
+
+Later:
+handling comments
+breaks being in loops
+
