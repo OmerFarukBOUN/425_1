@@ -29,6 +29,7 @@
 "odd"            { return ODD; }
 "to"             { return TO; }
 "call"           { return CALL; }
+"."              { return '.'; }
 ","              { return ','; }
 ";"              { return ';'; }
 "("              { return '('; }

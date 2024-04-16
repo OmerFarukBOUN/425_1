@@ -28,6 +28,7 @@ typedef struct {
 
 Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
         | Block '.' { printf("Parsed successfully.\n"); exit(0); }
+        | error '.'
         ;
 
 FunctionList : FunctionBlock

@@ -1,5 +1,5 @@
-Program := 		FunctionList Block '.'
-FunctionList :=		FunctionBlock | FunctionList FunctionBlock | ε
+Program := 		FunctionList Block '.' | Block '.'
+FunctionList :=		FunctionBlock | FunctionList FunctionBlock
 FunctionBlock :=	'function' identifier '(' IdentifierList ')' 'do' Block '.'
 Block := 		ConstDecl VarDec ProcDecl Statement
 ConstDecl := 		'const' ConstAssignmentList ';' | ε
@@ -13,8 +13,8 @@ ProcDecl := 		ProcDecl 'procedure' identifier ';' Block ';' | ε
 Statement := 		identifier ':=' Expression
 | 'call' identifier
 | 'begin' StatementList 'end'
-| 'if' Condition 'then' Statement
-| 'if' Condition 'then' Statement 'else' Statement
+| 'if' Condition 'then' Statement '!'
+| 'if' Condition 'then' Statement 'else' Statement '!'
 | 'while' Condition 'do' Statement
 | 'for' identifier ':=' Expression 'to' Expression 'do' Statement
 | 'break'

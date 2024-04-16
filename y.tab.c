@@ -600,18 +600,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  13
+#define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   192
+#define YYLAST   214
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  45
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  21
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  60
+#define YYNRULES  61
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  142
+#define YYNSTATES  144
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   283
@@ -663,13 +663,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    29,    29,    30,    33,    34,    37,    40,    41,    44,
-      47,    48,    49,    52,    53,    56,    57,    60,    61,    64,
-      65,    68,    71,    72,    75,    76,    77,    78,    79,    80,
-      81,    82,    83,    84,    85,    86,    87,    90,    91,    94,
-      95,    96,    97,    98,    99,   100,   103,   104,   105,   108,
-     109,   110,   111,   114,   115,   116,   117,   118,   121,   124,
-     125
+       0,    29,    29,    30,    31,    34,    35,    38,    41,    42,
+      45,    48,    49,    50,    53,    54,    57,    58,    61,    62,
+      65,    66,    69,    72,    73,    76,    77,    78,    79,    80,
+      81,    82,    83,    84,    85,    86,    87,    88,    91,    92,
+      95,    96,    97,    98,    99,   100,   101,   104,   105,   106,
+     109,   110,   111,   112,   115,   116,   117,   118,   119,   122,
+     125,   126
 };
 #endif
 
@@ -704,12 +704,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-54)
+#define YYPACT_NINF (-56)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-13)
+#define YYTABLE_NINF (-14)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -718,21 +718,21 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      96,   -36,   -14,     2,     8,    96,   -54,    15,    24,   -54,
-      19,     6,    48,   -54,   -54,    22,   -54,    55,    75,    55,
-      71,    74,   -54,   -54,   -54,    50,    95,   116,    54,   -54,
-      91,   102,   -54,    90,    66,   -54,   118,   136,   139,   131,
-     -54,   132,    95,   -54,   106,    -9,    -9,   142,   -54,    -7,
-     129,   130,   134,   136,   149,   140,   -54,   122,   -54,   133,
-     -54,    59,    -7,   -31,   -54,    -7,   -54,   165,   135,    12,
-     -54,   -54,   173,   144,    87,   155,    -7,    -7,   -54,   -17,
-     -54,    -7,   143,   -54,   141,    87,    -7,   -16,   136,    -7,
-      -7,    -7,    -7,    -7,    -7,    -7,    -7,    -7,    -7,    -7,
-     136,    -7,   145,     3,     9,   -54,   136,    87,   -54,   -54,
-      87,   -20,   -54,   -10,    87,    87,    87,    12,    12,    87,
-      87,    87,   -54,   -54,   -54,   -54,    40,   -54,   -54,   -54,
-     -54,   -54,    -7,   136,   -54,    -7,    87,   137,    -2,   -54,
-     136,   -54
+      96,     2,    -5,    14,    26,   122,   -56,     8,    46,   -56,
+     -56,    19,    25,    29,   -56,    22,   -56,    42,   -56,    58,
+      84,    58,    71,    74,   -56,   -56,   -56,    66,    95,   116,
+      54,   -56,    98,   102,   -56,   103,    76,   -56,   123,   162,
+     144,   125,   -56,   126,    95,   -56,   111,    -9,    -9,   134,
+     -56,   -18,   130,   131,   135,   162,   158,   149,   -56,   148,
+     -56,   150,   -56,    59,   -18,     6,   -56,   -18,   -56,   182,
+     161,    53,   -56,   -56,   190,   164,    92,   175,   -18,   -18,
+     -56,   -17,   -56,   -18,   163,   -56,   160,    92,   -18,   -16,
+     162,   -18,   -18,   -18,   -18,   -18,   -18,   -18,   -18,   -18,
+     -18,   -18,   162,   -18,   165,     1,     3,   -56,   162,    92,
+     -56,   -56,    92,   -31,   -56,   -10,    92,    92,    92,    53,
+      53,    92,    92,    92,   -56,   -56,   -56,   -56,   -12,   -56,
+     -56,   -56,   -56,   -56,   -18,   162,   -56,   -18,    92,   159,
+      -2,   -56,   162,   -56
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -740,37 +740,37 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     0,     0,     0,     0,     4,     0,    16,    11,
-       0,     0,     0,     1,     5,     0,     3,     0,    18,     0,
-       0,     0,    10,     2,     7,     0,     0,    23,     0,    13,
-       0,     0,    15,     0,     0,    19,     0,    36,     0,     0,
-       8,     0,     0,    17,     0,     0,     0,     0,    31,     0,
-       0,     0,     0,    36,     0,     0,     9,     0,    14,     0,
-      20,     0,     0,    53,    54,     0,    56,     0,     0,    46,
-      49,    57,     0,     0,    32,     0,     0,     0,    37,     0,
-      25,     0,     0,    21,     0,    39,     0,     0,    36,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      36,     0,     0,     0,     0,    26,    36,    24,     6,    22,
-      59,     0,    55,     0,    41,    44,    45,    47,    48,    40,
-      42,    43,    50,    51,    52,    29,     0,    33,    34,    35,
-      38,    58,     0,    36,    27,     0,    60,     0,     0,    28,
-      36,    30
+       0,     0,     0,     0,     0,     0,     5,     0,    17,     4,
+      12,     0,     0,     0,     1,     0,     6,     0,     3,     0,
+      19,     0,     0,     0,    11,     2,     8,     0,     0,    24,
+       0,    14,     0,     0,    16,     0,     0,    20,     0,    37,
+       0,     0,     9,     0,     0,    18,     0,     0,     0,     0,
+      32,     0,     0,     0,     0,    37,     0,     0,    10,     0,
+      15,     0,    21,     0,     0,    54,    55,     0,    57,     0,
+       0,    47,    50,    58,     0,     0,    33,     0,     0,     0,
+      38,     0,    26,     0,     0,    22,     0,    40,     0,     0,
+      37,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    37,     0,     0,     0,     0,    27,    37,    25,
+       7,    23,    60,     0,    56,     0,    42,    45,    46,    48,
+      49,    41,    43,    44,    51,    52,    53,    30,     0,    34,
+      35,    36,    39,    59,     0,    37,    28,     0,    61,     0,
+       0,    29,    37,    31
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -54,   -54,   -54,   178,   166,     1,   -54,   -54,   -54,   -54,
-     -54,   -22,   -54,   -53,   -54,   146,   -40,    29,   -13,   -54,
-     -54
+     -56,   -56,   -56,   197,   184,    -1,   -56,   -56,   -56,   -56,
+     -56,   -23,   -56,   -55,   -56,   166,   -42,    48,   -11,   -56,
+     -56
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     4,     5,     6,    25,     7,     8,    12,    18,    27,
-      34,    66,    37,    56,    79,    67,    68,    69,    70,    71,
-     111
+       0,     4,     5,     6,    27,     7,     8,    13,    20,    29,
+      36,    68,    39,    58,    81,    69,    70,    71,    72,    73,
+     113
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -778,95 +778,99 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      78,   133,   140,   105,    35,     9,    15,    86,    13,    74,
-      10,    41,    62,    92,    93,    63,    64,    63,    64,   131,
-      60,   132,    85,   112,   106,    87,    11,    92,    93,    65,
-      17,    65,    92,    93,   134,   113,   103,   104,    92,    93,
-      20,   107,   128,    97,    98,    99,   110,   125,   129,   114,
-     115,   116,    16,   130,   119,   120,   121,    19,    82,    23,
-       1,   126,    84,   135,     3,   -12,   -12,   -12,   -12,    92,
-      93,   -12,   -12,   -12,   -12,   -12,   -12,   -12,   -12,    24,
-     137,   -12,    26,   -12,   122,   123,   124,   141,    21,    22,
-      31,    32,   136,    38,    31,   138,    29,     1,    30,     2,
-     -12,     3,   -12,   -12,   -12,   -12,    42,    43,   -12,   -12,
-     -12,   -12,   -12,   -12,   -12,   -12,    92,    93,   -12,    33,
-     -12,   117,   118,     1,    36,    39,    40,     3,   -12,   -12,
-     -12,   -12,    41,   -12,   -12,   -12,   -12,   -12,   -12,   -12,
-     -12,   -12,    44,    57,   -12,    45,   -12,    61,    46,    47,
-      48,    49,    50,    51,    52,    53,    58,    59,    54,   -12,
-      55,    89,    90,    91,    92,    93,    73,    75,    76,    94,
-      95,    96,    77,    80,    81,    88,    83,   100,   101,   102,
-     108,   139,   109,    14,   127,    28,     0,     0,     0,     0,
-       0,     0,    72
+      80,   135,   142,   107,    17,    37,    65,    66,   133,    76,
+     134,   137,    64,    94,    95,    65,    66,    94,    95,    11,
+      67,    62,    87,   114,   108,    89,    14,    94,    95,    67,
+      94,    95,    94,    95,   136,   115,   105,   106,    12,     9,
+     130,   109,   131,    10,    88,    18,   112,   127,    43,   116,
+     117,   118,    19,   132,   121,   122,   123,    21,    84,    22,
+      15,   128,    86,    10,     3,   -13,   -13,   -13,   -13,    23,
+      24,   -13,   -13,   -13,   -13,   -13,   -13,   -13,   -13,    25,
+     139,   -13,    26,   -13,    99,   100,   101,   143,   124,   125,
+     126,    28,   138,    40,    33,   140,    31,     1,    32,     2,
+     -13,     3,   -13,   -13,   -13,   -13,    33,    34,   -13,   -13,
+     -13,   -13,   -13,   -13,   -13,   -13,    44,    45,   -13,    35,
+     -13,    94,    95,    15,    38,     2,    42,     3,   -13,   -13,
+     -13,   -13,    41,   -13,   -13,   -13,   -13,   -13,   -13,   -13,
+     -13,   -13,   119,   120,   -13,    43,   -13,    46,    59,    15,
+      60,    61,    63,     3,   -13,   -13,   -13,   -13,    75,   -13,
+     -13,   -13,   -13,   -13,   -13,   -13,   -13,   -13,    77,    78,
+     -13,    47,   -13,    79,    48,    49,    50,    51,    52,    53,
+      54,    55,    82,    83,    56,   -13,    57,    91,    92,    93,
+      94,    95,    90,    85,   102,    96,    97,    98,   103,   104,
+     110,   111,    16,   141,   129,    30,     0,     0,     0,     0,
+       0,     0,     0,     0,    74
 };
 
 static const yytype_int16 yycheck[] =
 {
-      53,    11,     4,    20,    26,    41,     5,    38,     0,    49,
-      24,    42,    21,    29,    30,    24,    25,    24,    25,    39,
-      42,    41,    62,    39,    41,    65,    24,    29,    30,    38,
-       6,    38,    29,    30,    44,    88,    76,    77,    29,    30,
-      34,    81,    39,    31,    32,    33,    86,   100,    39,    89,
-      90,    91,    37,   106,    94,    95,    96,    38,    57,    37,
-       1,   101,    61,    23,     5,     6,     7,     8,     9,    29,
-      30,    12,    13,    14,    15,    16,    17,    18,    19,    24,
-     133,    22,     7,    24,    97,    98,    99,   140,    40,    41,
-      40,    41,   132,    39,    40,   135,    25,     1,    24,     3,
+      55,    11,     4,    20,     5,    28,    24,    25,    39,    51,
+      41,    23,    21,    29,    30,    24,    25,    29,    30,    24,
+      38,    44,    64,    39,    41,    67,     0,    29,    30,    38,
+      29,    30,    29,    30,    44,    90,    78,    79,    24,    37,
+      39,    83,    39,    41,    38,    37,    88,   102,    42,    91,
+      92,    93,     6,   108,    96,    97,    98,    38,    59,    34,
+       1,   103,    63,    41,     5,     6,     7,     8,     9,    40,
+      41,    12,    13,    14,    15,    16,    17,    18,    19,    37,
+     135,    22,    24,    24,    31,    32,    33,   142,    99,   100,
+     101,     7,   134,    39,    40,   137,    25,     1,    24,     3,
       41,     5,     6,     7,     8,     9,    40,    41,    12,    13,
-      14,    15,    16,    17,    18,    19,    29,    30,    22,    24,
-      24,    92,    93,     1,     8,    34,    24,     5,     6,     7,
-       8,     9,    42,    37,    12,    13,    14,    15,    16,    17,
-      18,    19,    24,     4,    22,     9,    24,    41,    12,    13,
-      14,    15,    16,    17,    18,    19,    25,    25,    22,    37,
-      24,    26,    27,    28,    29,    30,    24,    38,    38,    34,
-      35,    36,    38,    24,    34,    10,    43,     4,    34,    24,
-      37,    44,    41,     5,    39,    19,    -1,    -1,    -1,    -1,
-      -1,    -1,    46
+      14,    15,    16,    17,    18,    19,    40,    41,    22,    24,
+      24,    29,    30,     1,     8,     3,    24,     5,     6,     7,
+       8,     9,    34,    37,    12,    13,    14,    15,    16,    17,
+      18,    19,    94,    95,    22,    42,    24,    24,     4,     1,
+      25,    25,    41,     5,     6,     7,     8,     9,    24,    37,
+      12,    13,    14,    15,    16,    17,    18,    19,    38,    38,
+      22,     9,    24,    38,    12,    13,    14,    15,    16,    17,
+      18,    19,    24,    34,    22,    37,    24,    26,    27,    28,
+      29,    30,    10,    43,     4,    34,    35,    36,    34,    24,
+      37,    41,     5,    44,    39,    21,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    48
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     1,     3,     5,    46,    47,    48,    50,    51,    41,
-      24,    24,    52,     0,    48,    50,    37,     6,    53,    38,
-      34,    40,    41,    37,    24,    49,     7,    54,    49,    25,
-      24,    40,    41,    24,    55,    56,     8,    57,    39,    34,
-      24,    42,    40,    41,    24,     9,    12,    13,    14,    15,
-      16,    17,    18,    19,    22,    24,    58,     4,    25,    25,
-      56,    41,    21,    24,    25,    38,    56,    60,    61,    62,
-      63,    64,    60,    24,    61,    38,    38,    38,    58,    59,
-      24,    34,    50,    43,    50,    61,    38,    61,    10,    26,
-      27,    28,    29,    30,    34,    35,    36,    31,    32,    33,
-       4,    34,    24,    61,    61,    20,    41,    61,    37,    41,
-      61,    65,    39,    58,    61,    61,    61,    62,    62,    61,
-      61,    61,    63,    63,    63,    58,    61,    39,    39,    39,
-      58,    39,    41,    11,    44,    23,    61,    58,    61,    44,
-       4,    58
+       0,     1,     3,     5,    46,    47,    48,    50,    51,    37,
+      41,    24,    24,    52,     0,     1,    48,    50,    37,     6,
+      53,    38,    34,    40,    41,    37,    24,    49,     7,    54,
+      49,    25,    24,    40,    41,    24,    55,    56,     8,    57,
+      39,    34,    24,    42,    40,    41,    24,     9,    12,    13,
+      14,    15,    16,    17,    18,    19,    22,    24,    58,     4,
+      25,    25,    56,    41,    21,    24,    25,    38,    56,    60,
+      61,    62,    63,    64,    60,    24,    61,    38,    38,    38,
+      58,    59,    24,    34,    50,    43,    50,    61,    38,    61,
+      10,    26,    27,    28,    29,    30,    34,    35,    36,    31,
+      32,    33,     4,    34,    24,    61,    61,    20,    41,    61,
+      37,    41,    61,    65,    39,    58,    61,    61,    61,    62,
+      62,    61,    61,    61,    63,    63,    63,    58,    61,    39,
+      39,    39,    58,    39,    41,    11,    44,    23,    61,    58,
+      61,    44,     4,    58
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    45,    46,    46,    47,    47,    48,    49,    49,    50,
-      51,    51,    51,    52,    52,    53,    53,    54,    54,    55,
-      55,    56,    57,    57,    58,    58,    58,    58,    58,    58,
-      58,    58,    58,    58,    58,    58,    58,    59,    59,    60,
-      60,    60,    60,    60,    60,    60,    61,    61,    61,    62,
-      62,    62,    62,    63,    63,    63,    63,    63,    64,    65,
-      65
+       0,    45,    46,    46,    46,    47,    47,    48,    49,    49,
+      50,    51,    51,    51,    52,    52,    53,    53,    54,    54,
+      55,    55,    56,    57,    57,    58,    58,    58,    58,    58,
+      58,    58,    58,    58,    58,    58,    58,    58,    59,    59,
+      60,    60,    60,    60,    60,    60,    60,    61,    61,    61,
+      62,    62,    62,    62,    63,    63,    63,    63,    63,    64,
+      65,    65
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     3,     2,     1,     2,     8,     1,     3,     5,
-       3,     2,     0,     3,     5,     3,     0,     3,     0,     1,
-       3,     4,     5,     0,     3,     2,     3,     5,     7,     4,
-       8,     1,     2,     4,     4,     4,     0,     1,     3,     2,
-       3,     3,     3,     3,     3,     3,     1,     3,     3,     1,
-       3,     3,     3,     1,     1,     3,     1,     1,     4,     1,
-       3
+       0,     2,     3,     2,     2,     1,     2,     8,     1,     3,
+       5,     3,     2,     0,     3,     5,     3,     0,     3,     0,
+       1,     3,     4,     5,     0,     3,     2,     3,     5,     7,
+       4,     8,     1,     2,     4,     4,     4,     0,     1,     3,
+       2,     3,     3,     3,     3,     3,     3,     1,     3,     3,
+       1,     3,     3,     3,     1,     1,     3,     1,     1,     4,
+       1,     3
 };
 
 
@@ -1332,347 +1336,347 @@ yyreduce:
   case 2: /* Program: FunctionList Block '.'  */
 #line 29 "hw.y"
                                  { printf("Parsed successfully.\n"); exit(0); }
-#line 1336 "y.tab.c"
+#line 1340 "y.tab.c"
     break;
 
   case 3: /* Program: Block '.'  */
 #line 30 "hw.y"
                     { printf("Parsed successfully.\n"); exit(0); }
-#line 1342 "y.tab.c"
+#line 1346 "y.tab.c"
     break;
 
-  case 5: /* FunctionList: FunctionList FunctionBlock  */
-#line 34 "hw.y"
+  case 6: /* FunctionList: FunctionList FunctionBlock  */
+#line 35 "hw.y"
                                           { /* Combine function blocks */ }
-#line 1348 "y.tab.c"
+#line 1352 "y.tab.c"
     break;
 
-  case 6: /* FunctionBlock: FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.'  */
-#line 37 "hw.y"
+  case 7: /* FunctionBlock: FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.'  */
+#line 38 "hw.y"
                                                                         { /* Process function block */ }
-#line 1354 "y.tab.c"
+#line 1358 "y.tab.c"
     break;
 
-  case 7: /* IdentifierList: IDENTIFIER  */
-#line 40 "hw.y"
-                            { yyval = yyvsp[0]; }
-#line 1360 "y.tab.c"
-    break;
-
-  case 8: /* IdentifierList: IdentifierList ',' IDENTIFIER  */
+  case 8: /* IdentifierList: IDENTIFIER  */
 #line 41 "hw.y"
+                            { yyval = yyvsp[0]; }
+#line 1364 "y.tab.c"
+    break;
+
+  case 9: /* IdentifierList: IdentifierList ',' IDENTIFIER  */
+#line 42 "hw.y"
                                                { /* Combine identifiers */ }
-#line 1366 "y.tab.c"
+#line 1370 "y.tab.c"
     break;
 
-  case 9: /* Block: ConstDecl VarDecl ArrDecl ProcDecl Statement  */
-#line 44 "hw.y"
+  case 10: /* Block: ConstDecl VarDecl ArrDecl ProcDecl Statement  */
+#line 45 "hw.y"
                                                      { /* Process block */ }
-#line 1372 "y.tab.c"
+#line 1376 "y.tab.c"
     break;
 
-  case 10: /* ConstDecl: CONST ConstAssignmentList ';'  */
-#line 47 "hw.y"
+  case 11: /* ConstDecl: CONST ConstAssignmentList ';'  */
+#line 48 "hw.y"
                                           { /* Process constant declaration */ }
-#line 1378 "y.tab.c"
+#line 1382 "y.tab.c"
     break;
 
-  case 12: /* ConstDecl: %empty  */
-#line 49 "hw.y"
+  case 13: /* ConstDecl: %empty  */
+#line 50 "hw.y"
                         { /* No constant declaration */ }
-#line 1384 "y.tab.c"
+#line 1388 "y.tab.c"
     break;
 
-  case 13: /* ConstAssignmentList: IDENTIFIER '=' NUMBER  */
-#line 52 "hw.y"
-                                            { /* Process constant assignment */ }
-#line 1390 "y.tab.c"
-    break;
-
-  case 14: /* ConstAssignmentList: ConstAssignmentList ',' IDENTIFIER '=' NUMBER  */
+  case 14: /* ConstAssignmentList: IDENTIFIER '=' NUMBER  */
 #line 53 "hw.y"
+                                            { /* Process constant assignment */ }
+#line 1394 "y.tab.c"
+    break;
+
+  case 15: /* ConstAssignmentList: ConstAssignmentList ',' IDENTIFIER '=' NUMBER  */
+#line 54 "hw.y"
                                                                     { /* Combine constant assignments */ }
-#line 1396 "y.tab.c"
+#line 1400 "y.tab.c"
     break;
 
-  case 15: /* VarDecl: VAR IdentifierList ';'  */
-#line 56 "hw.y"
-                                 { /* Process variable declaration */ }
-#line 1402 "y.tab.c"
-    break;
-
-  case 16: /* VarDecl: %empty  */
+  case 16: /* VarDecl: VAR IdentifierList ';'  */
 #line 57 "hw.y"
+                                 { /* Process variable declaration */ }
+#line 1406 "y.tab.c"
+    break;
+
+  case 17: /* VarDecl: %empty  */
+#line 58 "hw.y"
                       { /* No variable declaration */ }
-#line 1408 "y.tab.c"
+#line 1412 "y.tab.c"
     break;
 
-  case 17: /* ArrDecl: ARR ArrList ';'  */
-#line 60 "hw.y"
-                          { /* Process array declaration */ }
-#line 1414 "y.tab.c"
-    break;
-
-  case 18: /* ArrDecl: %empty  */
+  case 18: /* ArrDecl: ARR ArrList ';'  */
 #line 61 "hw.y"
+                          { /* Process array declaration */ }
+#line 1418 "y.tab.c"
+    break;
+
+  case 19: /* ArrDecl: %empty  */
+#line 62 "hw.y"
                       { /* No array declaration */ }
-#line 1420 "y.tab.c"
+#line 1424 "y.tab.c"
     break;
 
-  case 19: /* ArrList: Array  */
-#line 64 "hw.y"
-                { yyval = yyvsp[0]; }
-#line 1426 "y.tab.c"
-    break;
-
-  case 20: /* ArrList: ArrList ',' Array  */
+  case 20: /* ArrList: Array  */
 #line 65 "hw.y"
+                { yyval = yyvsp[0]; }
+#line 1430 "y.tab.c"
+    break;
+
+  case 21: /* ArrList: ArrList ',' Array  */
+#line 66 "hw.y"
                             { /* Combine arrays */ }
-#line 1432 "y.tab.c"
+#line 1436 "y.tab.c"
     break;
 
-  case 21: /* Array: IDENTIFIER '[' NUMBER ']'  */
-#line 68 "hw.y"
+  case 22: /* Array: IDENTIFIER '[' NUMBER ']'  */
+#line 69 "hw.y"
                                   { /* Process array */ }
-#line 1438 "y.tab.c"
+#line 1442 "y.tab.c"
     break;
 
-  case 22: /* ProcDecl: PROCEDURE IDENTIFIER ';' Block ';'  */
-#line 71 "hw.y"
-                                              { /* Process procedure declaration */ }
-#line 1444 "y.tab.c"
-    break;
-
-  case 23: /* ProcDecl: %empty  */
+  case 23: /* ProcDecl: PROCEDURE IDENTIFIER ';' Block ';'  */
 #line 72 "hw.y"
+                                              { /* Process procedure declaration */ }
+#line 1448 "y.tab.c"
+    break;
+
+  case 24: /* ProcDecl: %empty  */
+#line 73 "hw.y"
                        { /* No procedure declaration */ }
-#line 1450 "y.tab.c"
+#line 1454 "y.tab.c"
     break;
 
-  case 24: /* Statement: IDENTIFIER '=' Expression  */
-#line 75 "hw.y"
-                                      { /* Process assignment statement */ }
-#line 1456 "y.tab.c"
-    break;
-
-  case 25: /* Statement: CALL IDENTIFIER  */
+  case 25: /* Statement: IDENTIFIER '=' Expression  */
 #line 76 "hw.y"
-                            { /* Process function call statement */ }
-#line 1462 "y.tab.c"
+                                      { /* Process assignment statement */ }
+#line 1460 "y.tab.c"
     break;
 
-  case 26: /* Statement: BEGIN_ StatementList END  */
+  case 26: /* Statement: CALL IDENTIFIER  */
 #line 77 "hw.y"
-                                     { /* Process compound statement */ }
-#line 1468 "y.tab.c"
+                            { /* Process function call statement */ }
+#line 1466 "y.tab.c"
     break;
 
-  case 27: /* Statement: IF Condition THEN Statement '!'  */
+  case 27: /* Statement: BEGIN_ StatementList END  */
 #line 78 "hw.y"
-                                            { /* Process if statement */ }
-#line 1474 "y.tab.c"
+                                     { /* Process compound statement */ }
+#line 1472 "y.tab.c"
     break;
 
-  case 28: /* Statement: IF Condition THEN Statement ELSE Statement '!'  */
+  case 28: /* Statement: IF Condition THEN Statement '!'  */
 #line 79 "hw.y"
-                                                           { /* Process if-else statement */ }
-#line 1480 "y.tab.c"
+                                            { /* Process if statement */ }
+#line 1478 "y.tab.c"
     break;
 
-  case 29: /* Statement: WHILE Condition DO Statement  */
+  case 29: /* Statement: IF Condition THEN Statement ELSE Statement '!'  */
 #line 80 "hw.y"
-                                         { /* Process while loop */ }
-#line 1486 "y.tab.c"
+                                                           { /* Process if-else statement */ }
+#line 1484 "y.tab.c"
     break;
 
-  case 30: /* Statement: FOR IDENTIFIER '=' Expression TO Expression DO Statement  */
+  case 30: /* Statement: WHILE Condition DO Statement  */
 #line 81 "hw.y"
-                                                                     { /* Process for loop */ }
-#line 1492 "y.tab.c"
+                                         { /* Process while loop */ }
+#line 1490 "y.tab.c"
     break;
 
-  case 31: /* Statement: BREAK  */
+  case 31: /* Statement: FOR IDENTIFIER '=' Expression TO Expression DO Statement  */
 #line 82 "hw.y"
-                  { /* Process break statement */ }
-#line 1498 "y.tab.c"
+                                                                     { /* Process for loop */ }
+#line 1496 "y.tab.c"
     break;
 
-  case 32: /* Statement: RETURN Expression  */
+  case 32: /* Statement: BREAK  */
 #line 83 "hw.y"
-                              { /* Process return statement */ }
-#line 1504 "y.tab.c"
+                  { /* Process break statement */ }
+#line 1502 "y.tab.c"
     break;
 
-  case 33: /* Statement: READ '(' IDENTIFIER ')'  */
+  case 33: /* Statement: RETURN Expression  */
 #line 84 "hw.y"
-                                    { /* Process read statement */ }
-#line 1510 "y.tab.c"
+                              { /* Process return statement */ }
+#line 1508 "y.tab.c"
     break;
 
-  case 34: /* Statement: WRITE '(' Expression ')'  */
+  case 34: /* Statement: READ '(' IDENTIFIER ')'  */
 #line 85 "hw.y"
-                                     { /* Process write statement */ }
-#line 1516 "y.tab.c"
+                                    { /* Process read statement */ }
+#line 1514 "y.tab.c"
     break;
 
-  case 35: /* Statement: WRITELINE '(' Expression ')'  */
+  case 35: /* Statement: WRITE '(' Expression ')'  */
 #line 86 "hw.y"
-                                         { /* Process writeline statement */ }
-#line 1522 "y.tab.c"
+                                     { /* Process write statement */ }
+#line 1520 "y.tab.c"
     break;
 
-  case 36: /* Statement: %empty  */
+  case 36: /* Statement: WRITELINE '(' Expression ')'  */
 #line 87 "hw.y"
+                                         { /* Process writeline statement */ }
+#line 1526 "y.tab.c"
+    break;
+
+  case 37: /* Statement: %empty  */
+#line 88 "hw.y"
                         { /* No statement */ }
-#line 1528 "y.tab.c"
+#line 1532 "y.tab.c"
     break;
 
-  case 37: /* StatementList: Statement  */
-#line 90 "hw.y"
-                          { /* Process single statement */ }
-#line 1534 "y.tab.c"
-    break;
-
-  case 38: /* StatementList: StatementList ';' Statement  */
+  case 38: /* StatementList: Statement  */
 #line 91 "hw.y"
+                          { /* Process single statement */ }
+#line 1538 "y.tab.c"
+    break;
+
+  case 39: /* StatementList: StatementList ';' Statement  */
+#line 92 "hw.y"
                                             { /* Combine statements */ }
-#line 1540 "y.tab.c"
+#line 1544 "y.tab.c"
     break;
 
-  case 39: /* Condition: ODD Expression  */
-#line 94 "hw.y"
-                           { /* Process odd condition */ }
-#line 1546 "y.tab.c"
-    break;
-
-  case 40: /* Condition: Expression '=' Expression  */
+  case 40: /* Condition: ODD Expression  */
 #line 95 "hw.y"
-                                      { /* Process equality condition */ }
-#line 1552 "y.tab.c"
+                           { /* Process odd condition */ }
+#line 1550 "y.tab.c"
     break;
 
-  case 41: /* Condition: Expression NE Expression  */
+  case 41: /* Condition: Expression '=' Expression  */
 #line 96 "hw.y"
-                                     { /* Process inequality condition */ }
-#line 1558 "y.tab.c"
+                                      { /* Process equality condition */ }
+#line 1556 "y.tab.c"
     break;
 
-  case 42: /* Condition: Expression '<' Expression  */
+  case 42: /* Condition: Expression NE Expression  */
 #line 97 "hw.y"
-                                      { /* Process less than condition */ }
-#line 1564 "y.tab.c"
+                                     { /* Process inequality condition */ }
+#line 1562 "y.tab.c"
     break;
 
-  case 43: /* Condition: Expression '>' Expression  */
+  case 43: /* Condition: Expression '<' Expression  */
 #line 98 "hw.y"
-                                      { /* Process greater than condition */ }
-#line 1570 "y.tab.c"
+                                      { /* Process less than condition */ }
+#line 1568 "y.tab.c"
     break;
 
-  case 44: /* Condition: Expression LE Expression  */
+  case 44: /* Condition: Expression '>' Expression  */
 #line 99 "hw.y"
-                                     { /* Process less than or equal condition */ }
-#line 1576 "y.tab.c"
+                                      { /* Process greater than condition */ }
+#line 1574 "y.tab.c"
     break;
 
-  case 45: /* Condition: Expression GE Expression  */
+  case 45: /* Condition: Expression LE Expression  */
 #line 100 "hw.y"
+                                     { /* Process less than or equal condition */ }
+#line 1580 "y.tab.c"
+    break;
+
+  case 46: /* Condition: Expression GE Expression  */
+#line 101 "hw.y"
                                      { /* Process greater than or equal condition */ }
-#line 1582 "y.tab.c"
+#line 1586 "y.tab.c"
     break;
 
-  case 46: /* Expression: Term  */
-#line 103 "hw.y"
-                  { yyval = yyvsp[0]; }
-#line 1588 "y.tab.c"
-    break;
-
-  case 47: /* Expression: Expression '+' Term  */
+  case 47: /* Expression: Term  */
 #line 104 "hw.y"
-                                 { /* Process addition */ }
-#line 1594 "y.tab.c"
-    break;
-
-  case 48: /* Expression: Expression '-' Term  */
-#line 105 "hw.y"
-                                 { /* Process subtraction */ }
-#line 1600 "y.tab.c"
-    break;
-
-  case 49: /* Term: Factor  */
-#line 108 "hw.y"
-              { yyval = yyvsp[0]; }
-#line 1606 "y.tab.c"
-    break;
-
-  case 50: /* Term: Term '*' Factor  */
-#line 109 "hw.y"
-                       { /* Process multiplication */ }
-#line 1612 "y.tab.c"
-    break;
-
-  case 51: /* Term: Term '/' Factor  */
-#line 110 "hw.y"
-                       { /* Process division */ }
-#line 1618 "y.tab.c"
-    break;
-
-  case 52: /* Term: Term '%' Factor  */
-#line 111 "hw.y"
-                       { /* Process modulus */ }
-#line 1624 "y.tab.c"
-    break;
-
-  case 53: /* Factor: IDENTIFIER  */
-#line 114 "hw.y"
-                    { /* Process identifier */ }
-#line 1630 "y.tab.c"
-    break;
-
-  case 54: /* Factor: NUMBER  */
-#line 115 "hw.y"
-                { /* Process number */ }
-#line 1636 "y.tab.c"
-    break;
-
-  case 55: /* Factor: '(' Expression ')'  */
-#line 116 "hw.y"
-                            { /* Process expression in parentheses */ }
-#line 1642 "y.tab.c"
-    break;
-
-  case 56: /* Factor: Array  */
-#line 117 "hw.y"
-               { yyval = yyvsp[0]; }
-#line 1648 "y.tab.c"
-    break;
-
-  case 57: /* Factor: FuncCall  */
-#line 118 "hw.y"
                   { yyval = yyvsp[0]; }
-#line 1654 "y.tab.c"
+#line 1592 "y.tab.c"
     break;
 
-  case 58: /* FuncCall: IDENTIFIER '(' ExpressionList ')'  */
-#line 121 "hw.y"
+  case 48: /* Expression: Expression '+' Term  */
+#line 105 "hw.y"
+                                 { /* Process addition */ }
+#line 1598 "y.tab.c"
+    break;
+
+  case 49: /* Expression: Expression '-' Term  */
+#line 106 "hw.y"
+                                 { /* Process subtraction */ }
+#line 1604 "y.tab.c"
+    break;
+
+  case 50: /* Term: Factor  */
+#line 109 "hw.y"
+              { yyval = yyvsp[0]; }
+#line 1610 "y.tab.c"
+    break;
+
+  case 51: /* Term: Term '*' Factor  */
+#line 110 "hw.y"
+                       { /* Process multiplication */ }
+#line 1616 "y.tab.c"
+    break;
+
+  case 52: /* Term: Term '/' Factor  */
+#line 111 "hw.y"
+                       { /* Process division */ }
+#line 1622 "y.tab.c"
+    break;
+
+  case 53: /* Term: Term '%' Factor  */
+#line 112 "hw.y"
+                       { /* Process modulus */ }
+#line 1628 "y.tab.c"
+    break;
+
+  case 54: /* Factor: IDENTIFIER  */
+#line 115 "hw.y"
+                    { /* Process identifier */ }
+#line 1634 "y.tab.c"
+    break;
+
+  case 55: /* Factor: NUMBER  */
+#line 116 "hw.y"
+                { /* Process number */ }
+#line 1640 "y.tab.c"
+    break;
+
+  case 56: /* Factor: '(' Expression ')'  */
+#line 117 "hw.y"
+                            { /* Process expression in parentheses */ }
+#line 1646 "y.tab.c"
+    break;
+
+  case 57: /* Factor: Array  */
+#line 118 "hw.y"
+               { yyval = yyvsp[0]; }
+#line 1652 "y.tab.c"
+    break;
+
+  case 58: /* Factor: FuncCall  */
+#line 119 "hw.y"
+                  { yyval = yyvsp[0]; }
+#line 1658 "y.tab.c"
+    break;
+
+  case 59: /* FuncCall: IDENTIFIER '(' ExpressionList ')'  */
+#line 122 "hw.y"
                                              { /* Process function call */ }
-#line 1660 "y.tab.c"
+#line 1664 "y.tab.c"
     break;
 
-  case 59: /* ExpressionList: Expression  */
-#line 124 "hw.y"
-                            { /* Process single expression */ }
-#line 1666 "y.tab.c"
-    break;
-
-  case 60: /* ExpressionList: ExpressionList ';' Expression  */
+  case 60: /* ExpressionList: Expression  */
 #line 125 "hw.y"
+                            { /* Process single expression */ }
+#line 1670 "y.tab.c"
+    break;
+
+  case 61: /* ExpressionList: ExpressionList ';' Expression  */
+#line 126 "hw.y"
                                                { /* Combine expressions */ }
-#line 1672 "y.tab.c"
+#line 1676 "y.tab.c"
     break;
 
 
-#line 1676 "y.tab.c"
+#line 1680 "y.tab.c"
 
       default: break;
     }
@@ -1865,7 +1869,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 128 "hw.y"
+#line 129 "hw.y"
 
 int yyerror(const char *s) {
     printf("Syntax error at line %d\n", yylineno);
