@@ -127,6 +127,8 @@ Factor : IDENTIFIER { /* Process identifier */ }
        | '(' Expression ')' { /* Process expression in parentheses */ }
        | Array { $$ = $1; }
        | FuncCall { $$ = $1; }
+       | error {printf("Factor error\n");}
+       | ERR
        ;
 
 FuncCall : IDENTIFIER '(' ExpressionList ')' { /* Process function call */ }
@@ -147,7 +149,8 @@ int yyerror(const char *s) {
     printf("----\n");
     return 0;
 }
-int main() {
+int main(int argc, char *argv[]) {
+    yydebug=argc>1&&argv[1][0]=='-'&&argv[1][1]=='t';
     yyparse();
     return 0;
 }
