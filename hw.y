@@ -30,6 +30,7 @@ typedef struct {
 
 Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
         | Block '.' { printf("Parsed successfully.\n"); exit(0); }
+        | Block YYEOF { printf("Missing '.' at the end of file.\n"); exit(0); }
         ;
 
 FunctionList : FunctionBlock
