@@ -16,6 +16,9 @@ typedef struct {
     int numval;
 } YYSTYPE;
 
+int debug_print = 0;
+#define DEBUG(...) if(debug_print) printf(__VA_ARGS__);
+
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -96,7 +99,7 @@ Statement : IDENTIFIER '=' Expression { /* Process assignment statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
           | /* Empty */ { /* No statement */ }
-          | error
+          | error {DEBUG("Statement error\n");}
           ;
 
 StatementList : Statement { /* Process single statement */ }
@@ -110,6 +113,7 @@ Condition : ODD Expression { /* Process odd condition */ }
           | Expression '>' Expression { /* Process greater than condition */ }
           | Expression LE Expression { /* Process less than or equal condition */ }
           | Expression GE Expression { /* Process greater than or equal condition */ }
+          | error {DEBUG("Condition error\n");}
           ;
 
 Expression : Term { $$ = $1; }
@@ -128,7 +132,7 @@ Factor : IDENTIFIER { /* Process identifier */ }
        | '(' Expression ')' { /* Process expression in parentheses */ }
        | Array { $$ = $1; }
        | FuncCall { $$ = $1; }
-       | error {printf("Factor error\n");}
+       | error {DEBUG("Factor error\n");}
        | ERR
        ;
 
@@ -152,6 +156,7 @@ int yyerror(const char *s) {
 }
 int main(int argc, char *argv[]) {
     yydebug=argc>1&&argv[1][0]=='-'&&argv[1][1]=='t';
+    debug_print=argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
     yyparse();
     return 0;
 }

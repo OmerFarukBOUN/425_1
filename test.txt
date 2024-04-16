@@ -1,5 +1,10 @@
 begin
-    if 3 < 4a then writaeline(4) !;
-    if 3 < 4 then writeline(4) !
+    if asd <> fg then begin
+        if 3 < 4a then writaeline(4) !;
+        if 3 < 4 a then writeline(4) !
+    end ! ;
+    if asd = fg then begin
+        if 3 < 4a then writeline(4) !;
+        if 3 < 4 a then writeline(4) !
+    end ! ;
 end
-.
