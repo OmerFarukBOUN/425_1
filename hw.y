@@ -28,12 +28,10 @@ typedef struct {
 
 Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
         | Block '.' { printf("Parsed successfully.\n"); exit(0); }
-        | error '.'
         ;
 
 FunctionList : FunctionBlock
-             | FunctionList FunctionBlock { /* Combine function blocks */ } 
-             | error FunctionBlock
+             | FunctionList FunctionBlock { /* Combine function blocks */ }
              ;
 
 FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
@@ -49,14 +47,18 @@ Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
-          | CONST error ';'
+//          | CONST error ';'
           | /* Empty */ { /* No constant declaration */ }
           ;
 
-ConstAssignmentList : IDENTIFIER '=' NUMBER { /* Process constant assignment */ }
-                    | ConstAssignmentList ',' IDENTIFIER '=' NUMBER { /* Combine constant assignments */ }
-                    | error ',' IDENTIFIER '=' NUMBER
+ConstAssignmentList : Assignment { /* Process constant assignment */ }
+                    | ConstAssignmentList ',' Assignment { /* Combine constant assignments */ }
+                    | ConstAssignmentList error
                     ;
+
+Assignment : IDENTIFIER '=' NUMBER
+           | error
+           ;
 
 VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
         | VAR error ';'
@@ -91,6 +93,7 @@ Statement : IDENTIFIER '=' Expression { /* Process assignment statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
           | /* Empty */ { /* No statement */ }
+          | error
           ;
 
 StatementList : Statement { /* Process single statement */ }
