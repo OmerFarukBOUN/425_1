@@ -36,9 +36,3 @@ MulDivOperator := 	'*' | '/' | '%'
 Factor := 		identifier | number | '(' Expression ')' | Array | FuncCall
 Array :=		identifier '[' Expression ']'
 FuncCall:=		identifier '(' ExpressionList ')'
-
-
-Later:
-handling comments
-breaks being in loops
-
