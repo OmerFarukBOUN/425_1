@@ -31,8 +31,8 @@ int debug_print = 0;
 %debug
 %%
 
-Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
-        | FunctionList Block YYEOF{ printf("Missing '.' at the end of file.\n"); exit(1); }
+Program : FunctionList Block '.' YYEOF { printf("Parsed successfully.\n"); exit(0); }
+        | FunctionList Block YYEOF { printf("Missing '.' at the end of file.\n"); exit(1); }
         ;
 
 FunctionList : NeFunctionList
