@@ -22,7 +22,7 @@ int debug_print = 0;
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
-%token IDENTIFIER NUMBER NE LE GE
+%token IDENTIFIER NUMBER NE LE GE AS
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
@@ -62,7 +62,7 @@ ConstAssignmentList : Assignment { /* Process constant assignment */ }
                     | ConstAssignmentList error
                     ;
 
-Assignment : IDENTIFIER '=' NUMBER
+Assignment : IDENTIFIER AS NUMBER
            | error
            ;
 
@@ -82,17 +82,17 @@ ArrList : Array { $$ = $1; }
 Array : IDENTIFIER '[' Expression ']' { /* Process array */ }
       ;
 
-ProcDecl : PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
+ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
          | /* Empty */ { /* No procedure declaration */ }
          ;
 
-Statement : IDENTIFIER '=' Expression { /* Process assignment statement */ }
+Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
           | IF Condition THEN Statement '!' { /* Process if statement */ }
           | IF Condition THEN Statement ELSE Statement '!' { /* Process if-else statement */ }
           | WHILE Condition DO Statement { /* Process while loop */ }
-          | FOR IDENTIFIER '=' Expression TO Expression DO Statement { /* Process for loop */ }
+          | FOR IDENTIFIER AS Expression TO Expression DO Statement { /* Process for loop */ }
           | BREAK { /* Process break statement */ }
           | RETURN Expression { /* Process return statement */ }
           | READ '(' IDENTIFIER ')' { /* Process read statement */ }

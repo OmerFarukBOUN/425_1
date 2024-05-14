@@ -55,6 +55,7 @@ char linebuf[LINEBUF_LEN] = {0};
 "/"              { return '/'; }
 "%"              { return '%'; }
 "!"              { return '!'; }
+":="             { return AS; }
 [ \t]          ; // Skip whitespace and newline characters
 \n               {yycolumn = 1; memset(linebuf, 0, LINEBUF_LEN);}
 [0-9]+[a-zA-Z]+  { yyerror ("invalid token"); return ERR; }

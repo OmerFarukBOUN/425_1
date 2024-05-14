@@ -1,10 +1,11 @@
 Program := 		FunctionList Block '.' | Block '.'
 FunctionList :=		FunctionBlock | FunctionList FunctionBlock
 FunctionBlock :=	'function' identifier '(' IdentifierList ')' 'do' Block '.'
-Block := 		ConstDecl VarDec ProcDecl Statement
+Block := 		ConstDecl VarDec ArrDec ProcDecl Statement
 ConstDecl := 		'const' ConstAssignmentList ';' | ε
-ConstAssignmentList := 	identifier '=' number
-| ConstAssignmentList ',' identifier '=' number
+ConstAssignmentList := 	Assignment
+| ConstAssignmentList ',' Assignment
+Assignment :=    identifier ':=' number
 VarDecl := 		'var' IdentifierList ';' | ε
 ArrDec :=		'arr' ArrList ';' | ε
 ArrList :=		Array | ArrList ',' Array
