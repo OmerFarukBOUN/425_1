@@ -43,6 +43,8 @@ char linebuf[LINEBUF_LEN] = {0};
 ";"              { return ';'; }
 "("              { return '('; }
 ")"              { return ')'; }
+"["              { return '['; }
+"]"              { return ']'; }
 "="              { return '='; }
 "<>"             { return NE; }
 "<"              { return '<'; }

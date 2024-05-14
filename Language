@@ -14,6 +14,7 @@ IdentifierList :=       NeIdentifierList  | ε
 NeIdentifierList :=     identifier | NeIdentifierList ',' identifier
 ProcDecl := 		ProcDecl 'procedure' identifier ';' Block ';' | ε
 Statement :=    identifier ':=' Expression
+                | Array ':=' Expression
                 | 'call' identifier
                 | 'begin' StatementList 'end'
                 | 'if' Condition 'then' Statement '!'

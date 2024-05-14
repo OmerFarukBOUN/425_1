@@ -1,3 +1,7 @@
-function test(pass) do
-    writeline(3)
+function test() do
+    writeline(2+5)
+.
+function test2() do
+    writeline(4)
+.
 .

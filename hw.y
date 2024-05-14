@@ -94,6 +94,7 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure de
          ;
 
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
+          | Array AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
           | IF Condition THEN Statement '!' { /* Process if statement */ }
