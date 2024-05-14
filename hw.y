@@ -35,17 +35,24 @@ Program : FunctionList Block '.' { printf("Parsed successfully.\n"); exit(0); }
         | FunctionList Block YYEOF{ printf("Missing '.' at the end of file.\n"); exit(1); }
         ;
 
-FunctionList : FunctionBlock
-             | FunctionList FunctionBlock { /* Combine function blocks */ }
-             | /* could be empty */
+FunctionList : NeFunctionList
+             | /* empty */
+             ;
+
+NeFunctionList : FunctionBlock
+             | NeFunctionList FunctionBlock { /* Combine function blocks */ }
              ;
 
 FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
               | FUNCTION error '.'
               ;
 
-IdentifierList : IDENTIFIER { $$ = $1; }
-               | IdentifierList ',' IDENTIFIER { /* Combine identifiers */ }
+IdentifierList : NeIdentifierList
+               | /* empty */
+               ;
+
+NeIdentifierList : IDENTIFIER { $$ = $1; }
+               | NeIdentifierList ',' IDENTIFIER { /* Combine identifiers */ }
                | error ',' IDENTIFIER
                ;
 
@@ -98,6 +105,7 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | READ '(' IDENTIFIER ')' { /* Process read statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
+          | FuncCall { $$ = $1; }
           | /* Empty */ { /* No statement */ }
           | error {DEBUG("Statement error\n");}
           ;
