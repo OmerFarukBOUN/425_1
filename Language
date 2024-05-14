@@ -1,30 +1,32 @@
 Program := 		FunctionList Block '.' | Block '.'
-FunctionList :=		FunctionBlock | FunctionList FunctionBlock
+FunctionList :=     NeFunctionList | ε
+NeFunctionList :=   FunctionBlock | NeFunctionList FunctionBlock
 FunctionBlock :=	'function' identifier '(' IdentifierList ')' 'do' Block '.'
 Block := 		ConstDecl VarDec ArrDec ProcDecl Statement
-ConstDecl := 		'const' ConstAssignmentList ';' | ε
-ConstAssignmentList := 	Assignment
+ConstDecl :=        'const' ConstAssignmentList ';' | ε
+ConstAssignmentList :=  Assignment
 | ConstAssignmentList ',' Assignment
 Assignment :=    identifier ':=' number
 VarDecl := 		'var' IdentifierList ';' | ε
 ArrDec :=		'arr' ArrList ';' | ε
 ArrList :=		Array | ArrList ',' Array
-IdentifierList := 	identifier | IdentifierList ',' identifier
+IdentifierList :=       NeIdentifierList  | ε
+NeIdentifierList :=     identifier | NeIdentifierList ',' identifier
 ProcDecl := 		ProcDecl 'procedure' identifier ';' Block ';' | ε
-Statement := 		identifier ':=' Expression
-| 'call' identifier
-| 'begin' StatementList 'end'
-| 'if' Condition 'then' Statement '!'
-| 'if' Condition 'then' Statement 'else' Statement '!'
-| 'while' Condition 'do' Statement
-| 'for' identifier ':=' Expression 'to' Expression 'do' Statement
-| 'break'
-| 'return' Expression
-| 'read' '(' identifier ')'
-| 'write' '(' Expression ')'
-| 'writeline' '(' Expression ')'
-| ε
-StatementList := 	Statement | StatementList ';' Statement
+Statement :=    identifier ':=' Expression
+                | 'call' identifier
+                | 'begin' StatementList 'end'
+                | 'if' Condition 'then' Statement '!'
+                | 'if' Condition 'then' Statement 'else' Statement '!'
+                | 'while' Condition 'do' Statement
+                | 'for' identifier ':=' Expression 'to' Expression 'do' Statement
+                | 'break'
+                | 'return' Expression
+                | 'read' '(' identifier ')'
+                | 'write' '(' Expression ')'
+                | 'writeline' '(' Expression ')'
+                | ε
+StatementList :=    Statement | StatementList ';' Statement
 Condition := 		'odd' Expression | Expression Relation Expression
 Relation := 		'=' | '<>' | '<' | '>' | '<=' | '>='
 ExpressionList := 	Expression | ExpressionList ';' Expression
