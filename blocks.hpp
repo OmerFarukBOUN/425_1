@@ -14,7 +14,7 @@ extern int yyerror(const char *s);
 
 class Code_t {
 public:
-    virtual std::string make_code() {
+    virtual std::string make_code() const {
         return "";
     }
 };
@@ -26,7 +26,7 @@ public:
 
     Expression_t(const std::string &code, const std::string &resultVar) : code(code), result_var(resultVar) {}
 
-    std::string make_code() override {
+    std::string make_code() const override {
         return code;
     }
 };
@@ -38,7 +38,7 @@ public:
 
     Identifier_t(char *begin, char *end) : name(begin, end), llvm_name("%" + name) {}
 
-    virtual Expression_t *load(const std::string &temp) {
+    virtual Expression_t *load(const std::string &temp) const {
         return new Expression_t(temp + " = load i32, ptr " + llvm_name, temp);
     }
 
@@ -62,9 +62,9 @@ public:
 class Array_t : public Code_t {
 public:
     const Identifier_t *id;
-    const int index;
+    const int length;
 
-    Array_t(const Identifier_t *id, const int index) : id(id), index(index) {}
+    Array_t(const Identifier_t *id, const int index) : id(id), length(index) {}
 };
 
 class IdentifierList_t : public Code_t {
@@ -82,7 +82,7 @@ public:
 
     explicit VarDecl_t(IdentifierList_t *ids) : ids(ids) {}
 
-    std::string make_code() override;
+    std::string make_code() const override;
 };
 
 class ConstDecl_t : public VarDecl_t {
@@ -93,7 +93,17 @@ public:
 
     void insert(Const_t *);
 
-    std::string make_code() override;
+    std::string make_code() const override;
+};
+
+
+class ArrayDecl_t : public Code_t {
+public:
+    std::vector<Array_t *> arrays;
+
+    void insert(Array_t *);
+
+    std::string make_code() const override;
 };
 
 #endif //INC_425_1_BLOCKS_H

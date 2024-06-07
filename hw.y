@@ -103,11 +103,11 @@ ArrDecl : ARR ArrList ';' { /* Process array declaration */ }
         | /* Empty */ { /* No array declaration */ }
         ;
 
-ArrList : ArrayDec { /* $$ = $1; */}
+ArrList : Array { /* $$ = $1; */}
         | ArrList ',' Array { /* Combine arrays */ }
         ;
 
-Array : IDENTIFIER '[' NUMBER ']' { $$ = new Array_t($1, ); }
+Array : IDENTIFIER '[' NUMBER ']' { $$ = new Array_t($1, $3); }
       ;
 
 ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
@@ -159,7 +159,7 @@ Term : Factor { /* $$ = $1; */}
 
 Factor : IDENTIFIER {$$ = $1->load(get_temp());}
        | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
-       | '(' Expression ')' { $$ = $1; }
+       | '(' Expression ')' { $$ = $2; }
        | IDENTIFIER '[' Expression ']' { /* $$ = $1; */}
        | FuncCall { /* $$ = $1; */}
        | error {DEBUG("Factor error\n");}

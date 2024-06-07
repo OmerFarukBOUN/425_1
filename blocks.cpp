@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids) {
     return os;
 }
 
-std::string VarDecl_t::make_code() {
+std::string VarDecl_t::make_code() const {
     std::string code;
     for (const auto &item: ids->id_list) {
         code += item.llvm_name + " = alloca i32, align 4\n";
@@ -49,10 +49,22 @@ void ConstDecl_t::insert(Const_t *cons) {
     consts.push_back(cons);
 }
 
-std::string ConstDecl_t::make_code() {
+std::string ConstDecl_t::make_code() const {
     std::string code = VarDecl_t::make_code();
     for (const auto item: consts) {
         code += "store i32 " + std::to_string(item->val) + ", ptr " + item->llvm_name + "\n";
+    }
+    return code;
+}
+
+void ArrayDecl_t::insert(Array_t *) {
+
+}
+
+std::string ArrayDecl_t::make_code() const {
+    std::string code;
+    for (const auto &item: arrays) {
+        code += item->id->llvm_name + " = alloca i32, i32 " + std::to_string(item->length) + "\n";
     }
     return code;
 }
