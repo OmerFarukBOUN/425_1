@@ -32,6 +32,12 @@ std::string get_temp(){
     temp_count += 1;
     return "%temp_" + std::to_string(temp_count - 1);
 }
+
+int label_count = 0;
+std::string get_label(){
+    label_count += 1;
+    return "label_" + std::to_string(label_count - 1);
+}
 Scope_t functions("function");
 Scope_t procedures("procedure");
 Scope_t scope("variable");
@@ -49,7 +55,7 @@ Scope_t arrays("array");
 %type <VarDecl_t *> VarDecl
 %type <Const_t *> Assignment
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
-%type <Expression_t *> Factor Term Expression FuncCall
+%type <Expression_t *> Factor Term Expression FuncCall Condition ERR
 %type <ArrDecl_t *> ArrList ArrDecl
 %type <Statement_t *> Statement StatementList
 %type <Block_t *> Block
@@ -130,8 +136,8 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
-          | IF Condition THEN Statement '!' { /* Process if statement */ }
-          | IF Condition THEN Statement ELSE Statement '!' { /* Process if-else statement */ }
+          | IF Condition THEN Statement '!' { std::string current = get_label(); std::string end = get_label(); std::string code = "br i32 " + $2->result_var + ", " + current + ", " + end + "\n" + current + ":\n" + $4->code + end + ":\n"; $$ = new Statement_t(code); }
+          | IF Condition THEN Statement ELSE Statement '!' {std::string current = get_label(); std::string else_label = get_label(); std::string end_label; std::string code = "br i32 " + $2->result_var + ", " + current + ", " + else_label + "\n" + current + ":\n" + $4->code + "br label" + end_label + "\n" + else_label + ":\n" + $6->code + end_label + ":\n"; $$ = new Statement_t(code);}
           | WHILE Condition DO Statement { /* Process while loop */ }
           | FOR IDENTIFIER AS Expression TO Expression DO Statement { /* Process for loop */ }
           | BREAK { /* Process break statement */ }
@@ -148,25 +154,25 @@ StatementList : Statement { $$ = $1; }
               | StatementList ';' Statement { $$ = new Statement_t(*$1 + *$3); }
               ;
 
-Condition : ODD Expression { /* Process odd condition */ }
-          | Expression '=' Expression { /* Process equality condition */ }
-          | Expression NE Expression { /* Process inequality condition */ }
-          | Expression '<' Expression { /* Process less than condition */ }
-          | Expression '>' Expression { /* Process greater than condition */ }
-          | Expression LE Expression { /* Process less than or equal condition */ }
-          | Expression GE Expression { /* Process greater than or equal condition */ }
+Condition : ODD Expression { std::string current = get_temp(); std::string code = current + " = srem i32 " + $2->result_var + ", 2\n"; $$ = new Expression_t(code, current);}
+          | Expression '=' Expression { std::string current = get_temp(); std::string code = current + " = icmp eq i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression NE Expression { std::string current = get_temp(); std::string code = current + " = icmp ne i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression '<' Expression { std::string current = get_temp(); std::string code = current + " = icmp slt i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression '>' Expression { std::string current = get_temp(); std::string code = current + " = icmp sgt i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression LE Expression { std::string current = get_temp(); std::string code = current + " = icmp sle i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression GE Expression { std::string current = get_temp(); std::string code = current + " = icmp sge i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
           | error {DEBUG("Condition error\n");}
           ;
 
-Expression : Term { /* $$ = $1; */}
-           | Expression '+' Term { /* Process addition */ }
-           | Expression '-' Term { /* Process subtraction */ }
+Expression : Term { $$ = $1;}
+           | Expression '+' Term { std::string current = get_temp(); std::string code = current + " = add i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+           | Expression '-' Term { std::string current = get_temp(); std::string code = current + " = sub i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
            ;
 
-Term : Factor { /* $$ = $1; */}
-     | Term '*' Factor { /* Process multiplication */ }
-     | Term '/' Factor { /* Process division */ }
-     | Term '%' Factor { /* Process modulus */ }
+Term : Factor {  $$ = $1; }
+     | Term '*' Factor { std::string current = get_temp(); std::string code = current + " = mul i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+     | Term '/' Factor { std::string current = get_temp(); std::string code = current + " = sdiv i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+     | Term '%' Factor { std::string current = get_temp(); std::string code = current + " = srem i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
      ;
 
 Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
@@ -198,8 +204,9 @@ FuncCall : IDENTIFIER '(' ExpressionList ')' {
     $$ = new Expression_t(code, current);
 };
 
-ExpressionList : Expression { /* Process single expression */ }
-               | ExpressionList ';' Expression { /* Combine expressions */ }
+ExpressionList : Expression { $$ = new std::vector<Expression_t*>(1, $1); }
+               | ExpressionList ';' Expression { $$ = $1; $1->push_back($3); }
+               | /* Empty */ { $$ = new std::vector<Expression_t*>(); }
                ;
 
 %%
