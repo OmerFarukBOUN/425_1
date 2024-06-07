@@ -3,6 +3,20 @@
 //
 #include "blocks.hpp"
 
+int label_count = 0;
+
+std::string get_label() {
+    label_count += 1;
+    return "label_" + std::to_string(label_count - 1);
+}
+
+int temp_count = 0;
+
+std::string get_temp() {
+    temp_count += 1;
+    return "%temp_" + std::to_string(temp_count - 1);
+}
+
 std::ostream &operator<<(std::ostream &os, const Identifier_t &id) {
     os << id.name << "(" << id.llvm_name << ")";
     return os;
@@ -28,11 +42,26 @@ std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids) {
         if (it != uset.begin()) {
             os << ", ";
         }
+        os << **it;
+    }
+    os << "}";
+    return os;
+}
+
+
+std::ostream &operator<<(std::ostream &os, const Scope_t &scope) {
+    auto uset = scope.items;
+    os << "{";
+    for (auto it = uset.begin(); it != uset.end(); ++it) {
+        if (it != uset.begin()) {
+            os << ", ";
+        }
         os << *it;
     }
     os << "}";
     return os;
 }
+
 
 std::string VarDecl_t::make_code() const {
     std::string code;
@@ -83,7 +112,7 @@ std::string ArrDecl_t::make_code() const {
 
 void Scope_t::add(Identifier_t *id) {
     auto p = items.insert(*id);
-    if (p.second) {
+    if (!p.second) {
         std::string errmsg = "Declared previously declared " + type + ": " + id->name;
         yyerror(errmsg.c_str());
     }
@@ -138,11 +167,36 @@ std::string Function_t::make_code() const {
     str += ") {\n" +
            block->make_code()
            + "ret 0"
-           + "}";
+           + "}\n";
     return str;
 }
 
 void ProcDecl_t::insert(Proc_t *proc) {
     ids->insert(proc->id);
     procs.push_back(proc);
+}
+
+void ProcDecl_t::set_labels(std::vector<std::string> asd) {
+    for (const auto &item: procs) {
+        item->labels = std::move(asd);
+    }
+}
+
+std::string Proc_t::make_code() const {
+    std::string labels_str;
+    bool first = true;
+    for (const auto &item: labels) {
+        if (first) {
+            first = false;
+        } else {
+            labels_str += ", ";
+        }
+        labels_str += item;
+    }
+    auto temp = get_label();
+    return "br label %" + id->name
+           + id->name + ":"
+           + block->make_code() + "\n"
+           + temp + " = call ptr()* @pop()\n"
+           + "indirectbr i8* " + temp + ", [" + labels_str + "]\n";
 }

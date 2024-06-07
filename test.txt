@@ -1,8 +1,9 @@
-function test() do
+function test(a, b) do
     writeline(2+5)
 .
 function test2() do
     writeline(4)
 .
-var i, s, i;
+var i, s;
+test(1,2)
 .

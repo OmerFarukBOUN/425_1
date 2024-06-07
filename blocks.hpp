@@ -12,6 +12,10 @@
 #include <ostream>
 #include <unordered_set>
 
+std::string get_temp();
+
+std::string get_label();
+
 extern int yyerror(const char *s);
 
 class Code_t {
@@ -85,6 +89,8 @@ public:
     void use(Identifier_t *id);
 
     void remove(Identifier_t *id);
+
+    friend std::ostream &operator<<(std::ostream &os, const Scope_t& scope);
 };
 
 class Const_t : public Identifier_t {
@@ -132,7 +138,7 @@ public:
 
 class VarDecl_t : public Decl_t {
 public:
-    VarDecl_t() {}
+    VarDecl_t() = default;
 
     explicit VarDecl_t(IdentifierList_t *ids) {
         this->ids = ids;
@@ -159,16 +165,15 @@ public:
     std::string make_code() const override;
 };
 
-class Proc_t : public Code_t {
-public:
-    Identifier_t *id;
-};
+class Proc_t;
 
 class ProcDecl_t : public Decl_t {
 public:
     std::vector<Proc_t *> procs;
 
     void insert(Proc_t *);
+
+    void set_labels(std::vector<std::string>);
 };
 
 class Block_t : public Code_t {
@@ -196,7 +201,17 @@ public:
     Function_t(Identifier_t *id, IdentifierList_t *identifiers, Block_t *block);
 
     std::string make_code() const override;
+};
 
+class Proc_t : public Code_t {
+public:
+    Identifier_t *id;
+    Block_t *block;
+    std::vector<std::string> labels;
+
+    Proc_t(Identifier_t *id, Block_t *block) : id(id), block(block) {}
+
+    std::string make_code() const override;
 };
 
 #endif //INC_425_1_BLOCKS_H

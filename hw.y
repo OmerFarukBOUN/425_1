@@ -42,6 +42,9 @@ Scope_t functions("function");
 Scope_t procedures("procedure");
 Scope_t scope("variable");
 Scope_t arrays("array");
+
+std::vector<std::string> callbacks;
+std::string curr_fn_name;
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -97,7 +100,11 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
                | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->insert($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { $$ = new Block_t($1, $2, $3, $4, $5); $$->remove_from_scope(scope, procedures, arrays);}
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement {
+             $$ = new Block_t($1, $2, $3, $4, $5);
+             $$->remove_from_scope(scope, procedures, arrays);
+             $4->set_labels(callbacks);
+         }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { $$ = $2; $$->add_to_scope(scope);}
@@ -128,7 +135,7 @@ ArrList : Array { $$ = new ArrDecl_t(); $$->insert($1); }
 Array : IDENTIFIER '[' NUMBER ']' { $$ = new Array_t($1, $3); }
       ;
 
-ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { }
+ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { $$ = $1; $$->insert(new Proc_t($3, $5));}
          | /* Empty */ { $$ = new ProcDecl_t; }
          ;
 
