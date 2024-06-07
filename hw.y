@@ -31,8 +31,8 @@ int debug_print = 0;
 
 %define api.value.type union
 %type <int> NUMBER
-%type <const std::string *> IDENTIFIER
-%type <std::vector<string> *> IdentifierList NeIdentifierList
+%type <std::string *> IDENTIFIER
+%type <std::vector<std::string *> *> IdentifierList NeIdentifierList
 
 
 %left '+' '-'
@@ -60,15 +60,18 @@ FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Pro
               ;
 
 IdentifierList : NeIdentifierList {$$ = $1;}
-               | /* empty */ {$$ = new std::vector<std::string>();}
+               | /* empty */ {$$ = new std::vector<std::string *>();}
                ;
 
-NeIdentifierList : IDENTIFIER { $$ = new std::vector<std::string>(); $$->push_back($1);}
+NeIdentifierList : IDENTIFIER { $$ = new std::vector<std::string *>(); $$->push_back($1);}
                | NeIdentifierList ',' IDENTIFIER { $$->push_back($3); }
-               | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->push_back($3);}
+               | error ',' IDENTIFIER {$$ = new std::vector<std::string *>(); $$->push_back($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement {
+
+
+}
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
