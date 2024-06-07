@@ -4,4 +4,5 @@ function test() do
 function test2() do
     writeline(4)
 .
+var i, s, i;
 .

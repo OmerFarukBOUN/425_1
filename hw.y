@@ -1,20 +1,25 @@
+%code requires {
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
+#include <iostream>
+}
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <unordered_set>
+#include <iostream>
+
 #define YYDEBUG 1
 int yylex();
 int yyerror(const char *);
 extern int yylineno;
 #define LINEBUF_LEN 256
 extern char linebuf[LINEBUF_LEN];
-
-#define YYSTYPE_IS_DECLARED
-#define YYSTYPE_IS_POINTER
-typedef struct {
-    char *strval;
-    int numval;
-} YYSTYPE;
 
 int debug_print = 0;
 #define DEBUG(...) if(debug_print) printf(__VA_ARGS__);
@@ -23,6 +28,13 @@ int debug_print = 0;
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
 %token IDENTIFIER NUMBER NE LE GE AS
+
+%define api.value.type union
+%type <int> NUMBER
+%type <const std::string *> IDENTIFIER
+%type <std::vector<string> *> IdentifierList NeIdentifierList
+
+
 %left '+' '-'
 %left '*' '/' '%'
 %right '='
@@ -43,23 +55,24 @@ NeFunctionList : FunctionBlock
              | NeFunctionList FunctionBlock { /* Combine function blocks */ }
              ;
 
-FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' {function_init($2, $4, $7);}
+FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
               | FUNCTION error '.'
               ;
 
-IdentifierList : NeIdentifierList
-               | /* empty */
+IdentifierList : NeIdentifierList {$$ = $1;}
+               | /* empty */ {$$ = new std::vector<std::string>();}
                ;
 
-NeIdentifierList : IDENTIFIER { $$ = identifierlist_init($1); }
-               | NeIdentifierList ',' IDENTIFIER {$$ = idendifierlist_add($1, $3);}
-               | error ',' IDENTIFIER
+NeIdentifierList : IDENTIFIER { $$ = new std::vector<std::string>(); $$->push_back($1);}
+               | NeIdentifierList ',' IDENTIFIER { $$->insert($3); }
+               | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->push_back($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { end_block(); }
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
+//          | CONST error ';'
           | /* Empty */ { /* No constant declaration */ }
           ;
 
@@ -68,11 +81,11 @@ ConstAssignmentList : Assignment { /* Process constant assignment */ }
                     | ConstAssignmentList error
                     ;
 
-Assignment : IDENTIFIER AS NUMBER {assignment($1,$3);}
+Assignment : IDENTIFIER AS NUMBER
            | error
            ;
 
-VarDecl : VAR IdentifierList ';' { declare_vars($2);}
+VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
         | VAR error ';'
         | /* Empty */ { /* No variable declaration */ }
         ;
@@ -81,18 +94,18 @@ ArrDecl : ARR ArrList ';' { /* Process array declaration */ }
         | /* Empty */ { /* No array declaration */ }
         ;
 
-ArrList : Array { $$ = init_arrlist($1);}
-        | ArrList ',' Array {$$ = add_arrlist($1, $3);}
+ArrList : Array { /* $$ = $1; */}
+        | ArrList ',' Array { /* Combine arrays */ }
         ;
 
-Array : IDENTIFIER '[' Expression ']' {$$ = arr($1,$3);}
+Array : IDENTIFIER '[' Expression ']' { /* Process array */ }
       ;
 
-ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' {$$ = procdecl($1,$2,$3,$5);}
+ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
          | /* Empty */ { /* No procedure declaration */ }
          ;
 
-Statement : IDENTIFIER AS Expression {  }
+Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | Array AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
@@ -105,7 +118,7 @@ Statement : IDENTIFIER AS Expression {  }
           | READ '(' IDENTIFIER ')' { /* Process read statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
-          | FuncCall { $$ = $1; }
+          | FuncCall { /* $$ = $1; */}
           | /* Empty */ { /* No statement */ }
           | error {DEBUG("Statement error\n");}
           ;
@@ -124,12 +137,12 @@ Condition : ODD Expression { /* Process odd condition */ }
           | error {DEBUG("Condition error\n");}
           ;
 
-Expression : Term { $$ = $1; }
+Expression : Term { /* $$ = $1; */}
            | Expression '+' Term { /* Process addition */ }
            | Expression '-' Term { /* Process subtraction */ }
            ;
 
-Term : Factor { $$ = $1; }
+Term : Factor { /* $$ = $1; */}
      | Term '*' Factor { /* Process multiplication */ }
      | Term '/' Factor { /* Process division */ }
      | Term '%' Factor { /* Process modulus */ }
@@ -138,8 +151,8 @@ Term : Factor { $$ = $1; }
 Factor : IDENTIFIER { /* Process identifier */ }
        | NUMBER { /* Process number */ }
        | '(' Expression ')' { /* Process expression in parentheses */ }
-       | Array { $$ = $1; }
-       | FuncCall { $$ = $1; }
+       | Array { /* $$ = $1; */}
+       | FuncCall { /* $$ = $1; */}
        | error {DEBUG("Factor error\n");}
        | ERR
        ;

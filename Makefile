@@ -1,21 +1,18 @@
 LEX  = flex -I
-YACC = bison -tdy -Wcounterexamples
+YACC = /opt/homebrew/opt/bison@3.8/bin/bison -td -Wcounterexamples
 
-CC   = gcc -DYYDEBUG=1
+CC   = g++ -DYYDEBUG=1 -std=c++11
 
-all:	y.tab.c lex.yy.c
-	$(CC) -o hw y.tab.c lex.yy.c -ly -ll -lm
-
-
-y.tab.c y.tab.h:	hw.y
-	$(YACC) hw.y
+all:	build/y.tab.cpp build/y.tab.hpp build/lex.yy.cpp
+	$(CC) -o build/hw build/y.tab.cpp build/lex.yy.cpp -ly -ll -lm
 
 
-lex.yy.c:	hw.l
-	$(LEX) hw.l
+build/y.tab.cpp build/y.tab.hpp:	hw.y
+	$(YACC) -o build/y.tab.cpp hw.y
+
+
+build/lex.yy.cpp:	hw.l
+	$(LEX) -o build/lex.yy.cpp hw.l
 
 clean:
-	rm lex.yy.c
-	rm y.tab.c
-	rm y.tab.h
-	rm hw
+	rm build/*
