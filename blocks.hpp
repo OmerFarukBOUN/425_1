@@ -59,6 +59,13 @@ public:
     Const_t(const Identifier_t *id, const int val) : Identifier_t(*id), val(val) {}
 };
 
+class Array_t : public Code_t {
+public:
+    const Identifier_t *id;
+    const int index;
+
+    Array_t(const Identifier_t *id, const int index) : id(id), index(index) {}
+};
 
 class IdentifierList_t : public Code_t {
 public:

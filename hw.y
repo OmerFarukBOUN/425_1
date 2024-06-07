@@ -39,6 +39,7 @@ std::string get_temp(){
 %define api.value.type union
 %type <int> NUMBER
 %type <const Identifier_t *> IDENTIFIER
+%type <Array_t *> Array
 %type <IdentifierList_t *> IdentifierList NeIdentifierList
 %type <VarDecl_t *> VarDecl
 %type <Const_t *> Assignment
@@ -102,11 +103,11 @@ ArrDecl : ARR ArrList ';' { /* Process array declaration */ }
         | /* Empty */ { /* No array declaration */ }
         ;
 
-ArrList : Array { /* $$ = $1; */}
+ArrList : ArrayDec { /* $$ = $1; */}
         | ArrList ',' Array { /* Combine arrays */ }
         ;
 
-Array : IDENTIFIER '[' Expression ']' { /* Process array */ }
+Array : IDENTIFIER '[' NUMBER ']' { $$ = new Array_t($1, ); }
       ;
 
 ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
@@ -114,7 +115,7 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure de
          ;
 
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
-          | Array AS Expression { /* Process assignment statement */ }
+          | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
           | IF Condition THEN Statement '!' { /* Process if statement */ }
@@ -159,7 +160,7 @@ Term : Factor { /* $$ = $1; */}
 Factor : IDENTIFIER {$$ = $1->load(get_temp());}
        | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
        | '(' Expression ')' { $$ = $1; }
-       | Array { /* $$ = $1; */}
+       | IDENTIFIER '[' Expression ']' { /* $$ = $1; */}
        | FuncCall { /* $$ = $1; */}
        | error {DEBUG("Factor error\n");}
        | ERR
