@@ -43,7 +43,7 @@ NeFunctionList : FunctionBlock
              | NeFunctionList FunctionBlock { /* Combine function blocks */ }
              ;
 
-FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
+FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' {function_init($2, $4, $7);}
               | FUNCTION error '.'
               ;
 
@@ -51,16 +51,15 @@ IdentifierList : NeIdentifierList
                | /* empty */
                ;
 
-NeIdentifierList : IDENTIFIER { $$ = $1; }
-               | NeIdentifierList ',' IDENTIFIER { /* Combine identifiers */ }
+NeIdentifierList : IDENTIFIER { $$ = identifierlist_init($1); }
+               | NeIdentifierList ',' IDENTIFIER {$$ = idendifierlist_add($1, $3);}
                | error ',' IDENTIFIER
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { end_block(); }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
-//          | CONST error ';'
           | /* Empty */ { /* No constant declaration */ }
           ;
 
@@ -69,11 +68,11 @@ ConstAssignmentList : Assignment { /* Process constant assignment */ }
                     | ConstAssignmentList error
                     ;
 
-Assignment : IDENTIFIER AS NUMBER
+Assignment : IDENTIFIER AS NUMBER {assignment($1,$3);}
            | error
            ;
 
-VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
+VarDecl : VAR IdentifierList ';' { declare_vars($2);}
         | VAR error ';'
         | /* Empty */ { /* No variable declaration */ }
         ;
@@ -82,18 +81,18 @@ ArrDecl : ARR ArrList ';' { /* Process array declaration */ }
         | /* Empty */ { /* No array declaration */ }
         ;
 
-ArrList : Array { $$ = $1; }
-        | ArrList ',' Array { /* Combine arrays */ }
+ArrList : Array { $$ = init_arrlist($1);}
+        | ArrList ',' Array {$$ = add_arrlist($1, $3);}
         ;
 
-Array : IDENTIFIER '[' Expression ']' { /* Process array */ }
+Array : IDENTIFIER '[' Expression ']' {$$ = arr($1,$3);}
       ;
 
-ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
+ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' {$$ = procdecl($1,$2,$3,$5);}
          | /* Empty */ { /* No procedure declaration */ }
          ;
 
-Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
+Statement : IDENTIFIER AS Expression {  }
           | Array AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
           | BEGIN_ StatementList END { /* Process compound statement */ }
