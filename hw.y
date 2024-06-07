@@ -64,7 +64,7 @@ IdentifierList : NeIdentifierList {$$ = $1;}
                ;
 
 NeIdentifierList : IDENTIFIER { $$ = new std::vector<std::string>(); $$->push_back($1);}
-               | NeIdentifierList ',' IDENTIFIER { $$->insert($3); }
+               | NeIdentifierList ',' IDENTIFIER { $$->push_back($3); }
                | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->push_back($3);}
                ;
 
