@@ -19,12 +19,28 @@ public:
     }
 };
 
+class Expression_t : public Code_t {
+public:
+    std::string code;
+    std::string result_var;
+
+    Expression_t(const std::string &code, const std::string &resultVar) : code(code), result_var(resultVar) {}
+
+    std::string make_code() override {
+        return code;
+    }
+};
+
 class Identifier_t : public Code_t {
 public:
     const std::string name;
     const std::string llvm_name;
 
     Identifier_t(char *begin, char *end) : name(begin, end), llvm_name("%" + name) {}
+
+    virtual Expression_t *load(const std::string &temp) {
+        return new Expression_t(temp + " = load i32, ptr " + llvm_name, temp);
+    }
 
 public:
     bool operator==(const Identifier_t &rhs) const {
@@ -35,6 +51,14 @@ public:
         return !(rhs == *this);
     }
 };
+
+class Const_t : public Identifier_t {
+public:
+    const int val;
+
+    Const_t(const Identifier_t *id, const int val) : Identifier_t(*id), val(val) {}
+};
+
 
 class IdentifierList_t : public Code_t {
 public:
@@ -54,13 +78,6 @@ public:
     std::string make_code() override;
 };
 
-class Const_t : public Identifier_t {
-public:
-    const int val;
-
-    Const_t(const Identifier_t *id, const int val) : Identifier_t(*id), val(val) {}
-};
-
 class ConstDecl_t : public VarDecl_t {
 public:
     std::vector<Const_t *> consts;
@@ -70,18 +87,6 @@ public:
     void insert(Const_t *);
 
     std::string make_code() override;
-};
-
-class Expression_t : public Code_t {
-public:
-    std::string code;
-    std::string result_var;
-
-    Expression_t(const std::string &code, const std::string &resultVar) : code(code), result_var(resultVar) {}
-
-    std::string make_code() override {
-        return code;
-    }
 };
 
 #endif //INC_425_1_BLOCKS_H

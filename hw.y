@@ -156,9 +156,9 @@ Term : Factor { /* $$ = $1; */}
      | Term '%' Factor { /* Process modulus */ }
      ;
 
-Factor : IDENTIFIER {auto temp = get_temp();  $$ = new Expression_t(temp + " = load i32, ptr " + $1 -> llvm_name, temp); }
-       | NUMBER { /* Process number */ }
-       | '(' Expression ')' { /* Process expression in parentheses */ }
+Factor : IDENTIFIER {$$ = $1->load(get_temp());}
+       | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
+       | '(' Expression ')' { $$ = $1; }
        | Array { /* $$ = $1; */}
        | FuncCall { /* $$ = $1; */}
        | error {DEBUG("Factor error\n");}
