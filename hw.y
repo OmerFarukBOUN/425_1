@@ -32,6 +32,7 @@ std::string get_temp(){
     return "%temp_" + std::to_string(temp_count - 1);
 }
 Scope_t functions("function");
+Scope_t procedures("procedure");
 Scope_t scope("variable");
 %}
 
@@ -86,7 +87,7 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
 Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
-ConstDecl : CONST ConstAssignmentList ';' { $$ = $2;}
+ConstDecl : CONST ConstAssignmentList ';' { $$ = $2; $$->add_to_scope(scope);}
           | /* Empty */ {$$ = new ConstDecl_t();}
           ;
 
@@ -98,7 +99,7 @@ Assignment : IDENTIFIER AS NUMBER {$$ = new Const_t($1, $3);}
            | error {$$ = nullptr;}
            ;
 
-VarDecl : VAR NeIdentifierList ';' { $$ = new VarDecl_t($2); }
+VarDecl : VAR NeIdentifierList ';' { $$ = new VarDecl_t($2); $$->add_to_scope(scope);}
         | VAR error ';' { $$ = new VarDecl_t(new IdentifierList_t()); }
         | /* Empty */ { $$ = new VarDecl_t(new IdentifierList_t()); }
         ;

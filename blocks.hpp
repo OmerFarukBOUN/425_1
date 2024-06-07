@@ -21,12 +21,25 @@ public:
     }
 };
 
-class Expression_t : public Code_t {
+class Statement_t : public Code_t {
 public:
-    std::string code;
+    const std::string code;
+
+    explicit Statement_t(std::string code) : code(std::move(code)) {}
+
+    std::string make_code() const override { return code; }
+
+    friend Statement_t operator+(const Statement_t &a, const Statement_t &b) {
+        return Statement_t(a.code + b.code);
+    }
+};
+
+class Expression_t : public Statement_t {
+public:
     std::string result_var;
 
-    Expression_t(std::string code, std::string resultVar) : code(std::move(code)), result_var(std::move(resultVar)) {}
+    Expression_t(std::string code, std::string resultVar) : Statement_t(std::move(code)),
+                                                            result_var(std::move(resultVar)) {}
 
     std::string make_code() const override {
         return code;
@@ -70,6 +83,8 @@ public:
     void add(Identifier_t *id);
 
     void use(Identifier_t *id);
+
+    void remove(Identifier_t *id);
 };
 
 class Const_t : public Identifier_t {
@@ -94,6 +109,10 @@ public:
     void insert(Identifier_t *item_ptr);
 
     friend std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids);
+
+    void add_to_scope(Scope_t &) const;
+
+    void remove_from_scope(Scope_t &) const;
 };
 
 class VarDecl_t : public Code_t {
@@ -104,7 +123,13 @@ public:
 
     std::string make_code() const override;
 
-    void add_to_scope(Scope_t &) const;
+    void add_to_scope(Scope_t &scope) const {
+        ids->add_to_scope(scope);
+    }
+
+    void remove_from_scope(Scope_t &scope) const {
+        ids->remove_from_scope(scope);
+    }
 };
 
 class ConstDecl_t : public VarDecl_t {
@@ -128,21 +153,20 @@ public:
     std::string make_code() const override;
 };
 
-class Statement_t : public Code_t {
-public:
-    const std::string code;
-
-    explicit Statement_t(std::string code) : code(std::move(code)) {}
-
-    std::string make_code() const override { return code; }
-
-    friend Statement_t operator+(const Statement_t &a, const Statement_t &b) {
-        return Statement_t(a.code + b.code);
-    }
+class ProcDecl_t {
 };
 
 class Block_t : public Code_t {
+    ConstDecl_t *constDecl;
+    VarDecl_t *varDecl;
+    ArrDecl_t *arrDecl;
+    ProcDecl_t *procDecl;
+    Statement_t *statement;
+public:
+    Block_t(ConstDecl_t *constDecl, VarDecl_t *varDecl, ArrDecl_t *arrDecl, ProcDecl_t *procDecl,
+            Statement_t *statement);
 
+    void remove_from_scope(Scope_t &scope) const;
 };
 
 #endif //INC_425_1_BLOCKS_H

@@ -42,9 +42,15 @@ std::string VarDecl_t::make_code() const {
     return code;
 }
 
-void VarDecl_t::add_to_scope(Scope_t& scope) const {
-    for (auto id: ids->id_list) {
+void IdentifierList_t::add_to_scope(Scope_t &scope) const {
+    for (auto id: id_list) {
         scope.add(id);
+    }
+}
+
+void IdentifierList_t::remove_from_scope(Scope_t &scope) const {
+    for (auto id: id_list) {
+        scope.remove(id);
     }
 }
 
@@ -87,4 +93,19 @@ void Scope_t::use(Identifier_t *id) {
         std::string errmsg = "Used undeclared " + type + ": " + id->name;
         yyerror(errmsg.c_str());
     }
+}
+
+void Scope_t::remove(Identifier_t *id) {
+    items.erase(*id);
+}
+
+Block_t::Block_t(ConstDecl_t *constDecl, VarDecl_t *varDecl, ArrDecl_t *arrDecl, ProcDecl_t *procDecl,
+                 Statement_t *statement) : constDecl(constDecl), varDecl(varDecl), arrDecl(arrDecl), procDecl(procDecl),
+                                           statement(statement) {
+}
+
+void Block_t::remove_from_scope(Scope_t &scope) const {
+    constDecl->remove_from_scope(scope);
+    varDecl->remove_from_scope(scope);
+
 }
