@@ -57,11 +57,11 @@ std::string ConstDecl_t::make_code() const {
     return code;
 }
 
-void ArrayDecl_t::insert(Array_t *) {
+void ArrDecl_t::insert(Array_t *) {
 
 }
 
-std::string ArrayDecl_t::make_code() const {
+std::string ArrDecl_t::make_code() const {
     std::string code;
     for (const auto &item: arrays) {
         code += item->id->llvm_name + " = alloca i32, i32 " + std::to_string(item->length) + "\n";

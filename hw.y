@@ -45,7 +45,7 @@ std::string get_temp(){
 %type <Const_t *> Assignment
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
 %type <Expression_t *> Factor Term Expression
-%type <ArrDecl_t> ArrList ArrDecl
+%type <ArrDecl_t *> ArrList ArrDecl
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -100,11 +100,11 @@ VarDecl : VAR NeIdentifierList ';' { $$ = new VarDecl_t($2); }
         | /* Empty */ { $$ = new VarDecl_t(new IdentifierList_t()); }
         ;
 
-ArrDecl : ARR ArrList ';' { $$ = $1; }
-        | /* Empty */ { $$ = new ArrayDecl_t(); }
+ArrDecl : ARR ArrList ';' { $$ = $2; }
+        | /* Empty */ { $$ = new ArrDecl_t(); }
         ;
 
-ArrList : Array { $$ = new ArrayDecl_t(); $$->insert($1); }
+ArrList : Array { $$ = new ArrDecl_t(); $$->insert($1); }
         | ArrList ',' Array { $$ = $1; $$->insert($3); }
         ;
 

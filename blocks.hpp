@@ -97,7 +97,7 @@ public:
 };
 
 
-class ArrayDecl_t : public Code_t {
+class ArrDecl_t : public Code_t {
 public:
     std::vector<Array_t *> arrays;
 

@@ -1,5 +1,5 @@
 LEX  = flex -I
-YACC = bison -td -Wcounterexamples
+YACC = /opt/homebrew/opt/bison@3.8/bin/bison -td -Wcounterexamples
 
 CC   = g++ -DYYDEBUG=1 -std=c++11
 
