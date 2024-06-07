@@ -72,4 +72,16 @@ public:
     std::string make_code() override;
 };
 
+class Expression_t : public Code_t {
+public:
+    std::string code;
+    std::string result_var;
+
+    Expression_t(const std::string &code, const std::string &resultVar) : code(code), result_var(resultVar) {}
+
+    std::string make_code() override {
+        return code;
+    }
+};
+
 #endif //INC_425_1_BLOCKS_H

@@ -26,6 +26,11 @@ extern char linebuf[LINEBUF_LEN];
 int debug_print = 0;
 #define DEBUG(...) if(debug_print) printf(__VA_ARGS__);
 
+int temp_count = 0;
+std::string get_temp(){
+    temp_count += 1;
+    return "%temp_" + std::to_string(temp_count - 1);
+}
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -38,6 +43,7 @@ int debug_print = 0;
 %type <VarDecl_t *> VarDecl
 %type <Const_t *> Assignment
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
+%type <Expression_t *> Factor Term Expression
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -150,7 +156,7 @@ Term : Factor { /* $$ = $1; */}
      | Term '%' Factor { /* Process modulus */ }
      ;
 
-Factor : IDENTIFIER { /* Process identifier */ }
+Factor : IDENTIFIER {auto temp = get_temp();  $$ = new Expression_t(temp + " = load i32, ptr " + $1 -> llvm_name, temp); }
        | NUMBER { /* Process number */ }
        | '(' Expression ')' { /* Process expression in parentheses */ }
        | Array { /* $$ = $1; */}
