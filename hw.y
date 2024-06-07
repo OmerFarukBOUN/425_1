@@ -36,6 +36,8 @@ int debug_print = 0;
 %type <const Identifier_t *> IDENTIFIER
 %type <IdentifierList_t *> IdentifierList NeIdentifierList
 %type <VarDecl_t *> VarDecl
+%type <Const_t *> Assignment
+%type <ConstDecl_t *> ConstAssignmentList ConstDecl
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -73,21 +75,19 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
 Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
-ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
-//          | CONST error ';'
-          | /* Empty */ { /* No constant declaration */ }
+ConstDecl : CONST ConstAssignmentList ';' { $$ = $2; }
+          | /* Empty */ {$$ = new ConstDecl_t();}
           ;
 
-ConstAssignmentList : Assignment { /* Process constant assignment */ }
-                    | ConstAssignmentList ',' Assignment { /* Combine constant assignments */ }
-                    | ConstAssignmentList error
+ConstAssignmentList : Assignment { $$ = new ConstDecl_t(); $$ -> insert($1); }
+                    | ConstAssignmentList ',' Assignment { $$ = $1; $$ -> insert($3); }
                     ;
 
-Assignment : IDENTIFIER AS NUMBER
-           | error
+Assignment : IDENTIFIER AS NUMBER {$$ = new Const_t($1, $3);}
+           | error {$$ = nullptr;}
            ;
 
-VarDecl : VAR IdentifierList ';' { $$ = new VarDecl_t($2); }
+VarDecl : VAR NeIdentifierList ';' { $$ = new VarDecl_t($2); }
         | VAR error ';' { $$ = new VarDecl_t(new IdentifierList_t()); }
         | /* Empty */ { $$ = new VarDecl_t(new IdentifierList_t()); }
         ;

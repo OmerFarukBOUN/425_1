@@ -19,7 +19,7 @@ public:
     }
 };
 
-class Identifier_t : Code_t {
+class Identifier_t : public Code_t {
 public:
     const std::string name;
     const std::string llvm_name;
@@ -36,7 +36,7 @@ public:
     }
 };
 
-class IdentifierList_t {
+class IdentifierList_t : public Code_t {
 public:
     std::vector<Identifier_t> id_list;
 
@@ -45,18 +45,31 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids);
 };
 
-class VarDecl_t {
-    IdentifierList_t *ids;
+class VarDecl_t : public Code_t {
 public:
+    IdentifierList_t *ids;
+
     explicit VarDecl_t(IdentifierList_t *ids) : ids(ids) {}
 
-    virtual std::string make_code() {
-        std::string code;
-        for (const auto &item: ids->id_list) {
-            code += item.llvm_name + " = alloca i32, align 4";
-        }
-        return code;
-    }
+    std::string make_code() override;
+};
+
+class Const_t : public Identifier_t {
+public:
+    const int val;
+
+    Const_t(const Identifier_t *id, const int val) : Identifier_t(*id), val(val) {}
+};
+
+class ConstDecl_t : public VarDecl_t {
+public:
+    std::vector<Const_t *> consts;
+
+    ConstDecl_t() : VarDecl_t(new IdentifierList_t()) {}
+
+    void insert(Const_t *);
+
+    std::string make_code() override;
 };
 
 #endif //INC_425_1_BLOCKS_H
