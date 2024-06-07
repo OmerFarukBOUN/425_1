@@ -13,6 +13,7 @@
 #include <string.h>
 #include <string>
 #include <vector>
+#include <stack>
 #include <unordered_set>
 #include <iostream>
 #include "../blocks.hpp"
@@ -38,6 +39,9 @@ std::string get_label(){
     label_count += 1;
     return "label_" + std::to_string(label_count - 1);
 }
+
+std::stack<std::string> label_stack;
+
 Scope_t functions("function");
 Scope_t procedures("procedure");
 Scope_t scope("variable");
@@ -57,7 +61,7 @@ Scope_t arrays("array");
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
 %type <Expression_t *> Factor Term Expression FuncCall Condition ERR
 %type <ArrDecl_t *> ArrList ArrDecl
-%type <Statement_t *> Statement StatementList
+%type <Statement_t *> Statement StatementList While
 %type <Block_t *> Block
 %type <ProcDecl_t *> ProcDecl
 %type <Function_t *> FunctionBlock
@@ -132,6 +136,9 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { }
          | /* Empty */ { $$ = new ProcDecl_t; }
          ;
 
+While : WHILE { std::string current = get_label(); $$ = new Statement_t(current); label_stack.push(current); }
+      ;
+
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
@@ -157,22 +164,31 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           code += $6->code + end_label + ":\n";
           $$ = new Statement_t(code);
           }
-          | WHILE Condition DO Statement {
+          | While Condition DO Statement {
           std::string current = get_label();
-          std::string continue = get_label();
-          std::string end = get_label();
+          std::string continueLabel = get_label();
+          std::string end = $1->code;
+          if (end != label_stack.top()) {
+            DEBUG("Error: While statement not in while block\n")
+            exit(1);
+          }
           std::string code = current + ":\n";
           code += $2->code;
-          code += "br i32 " + $2->result_var + ", label " + continue + ", label " + end + "\n";
-          code += continue + ":\n";
+          code += "br i32 " + $2->result_var + ", label " + continueLabel + ", label " + end + "\n";
+          code += continueLabel + ":\n";
           code += $4->code;
           code += "br label " + current + "\n";
           code += end + ":\n";
           $$ = new Statement_t(code);
+          label_stack.pop();
           }
-          | FOR IDENTIFIER AS Expression TO Expression DO Statement { /* Process for loop */ }
-          | BREAK { /* Process break statement */ }
-          | RETURN Expression { /* Process return statement */ }
+          | FOR IDENTIFIER AS Expression TO Expression DO Statement {
+           std::string current = get_label();
+           std::string continueLabel = get_label();
+           std::string end = get_label();
+           }
+          | BREAK { $$ = new Statement_t("br label " + label_stack.top() + "\n");}
+          | RETURN Expression {}
           | READ '(' IDENTIFIER ')' { /* Process read statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
