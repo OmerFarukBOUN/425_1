@@ -4,6 +4,7 @@
 #include <string.h>
 #include <string>
 #include <iostream>
+#include "../blocks.hpp"
 }
 
 %{
@@ -13,6 +14,7 @@
 #include <string>
 #include <unordered_set>
 #include <iostream>
+#include "../blocks.hpp"
 
 #define YYDEBUG 1
 int yylex();
@@ -31,9 +33,9 @@ int debug_print = 0;
 
 %define api.value.type union
 %type <int> NUMBER
-%type <std::string *> IDENTIFIER
-%type <std::vector<std::string *> *> IdentifierList NeIdentifierList
-
+%type <const Identifier_t *> IDENTIFIER
+%type <IdentifierList_t *> IdentifierList NeIdentifierList
+%type <VarDecl_t *> VarDecl
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -59,19 +61,16 @@ FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Pro
               | FUNCTION error '.'
               ;
 
-IdentifierList : NeIdentifierList {$$ = $1;}
-               | /* empty */ {$$ = new std::vector<std::string *>();}
+IdentifierList : NeIdentifierList {$$ = $1; std::cout << *$$ << "\n";}
+               | /* empty */ {$$ = new IdentifierList_t;}
                ;
 
-NeIdentifierList : IDENTIFIER { $$ = new std::vector<std::string *>(); $$->push_back($1);}
-               | NeIdentifierList ',' IDENTIFIER { $$->push_back($3); }
-               | error ',' IDENTIFIER {$$ = new std::vector<std::string *>(); $$->push_back($3);}
+NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
+               | NeIdentifierList ',' IDENTIFIER { $$ = $1; $$->insert($3); }
+               | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->insert($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement {
-
-
-}
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { /* Process constant declaration */ }
@@ -88,9 +87,9 @@ Assignment : IDENTIFIER AS NUMBER
            | error
            ;
 
-VarDecl : VAR IdentifierList ';' { /* Process variable declaration */ }
-        | VAR error ';'
-        | /* Empty */ { /* No variable declaration */ }
+VarDecl : VAR IdentifierList ';' { $$ = new VarDecl_t($2); }
+        | VAR error ';' { $$ = new VarDecl_t(new IdentifierList_t()); }
+        | /* Empty */ { $$ = new VarDecl_t(new IdentifierList_t()); }
         ;
 
 ArrDecl : ARR ArrList ';' { /* Process array declaration */ }

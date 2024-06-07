@@ -61,7 +61,7 @@ char linebuf[LINEBUF_LEN] = {0};
 [ \t]          ; // Skip whitespace and newline characters
 \n               {yycolumn = 1; memset(linebuf, 0, LINEBUF_LEN);}
 [0-9]+[a-zA-Z]+  { yyerror ("invalid token"); return ERR; }
-[a-zA-Z][a-zA-Z0-9]* {yylval.IDENTIFIER = new std::string(yytext, yytext + yyleng); return IDENTIFIER; }
+[a-zA-Z][a-zA-Z0-9]* {yylval.IDENTIFIER = new Identifier_t(yytext, yytext + yyleng); return IDENTIFIER; }
 [0-9]+           { return NUMBER; }
 "/*"([^*]|"*"[^/])*"*/" { /* Ignore comments */ }
 .                { fprintf(stderr, "Unexpected character: %s\n", yytext); exit(1); }

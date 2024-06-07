@@ -4,7 +4,7 @@ YACC = /opt/homebrew/opt/bison@3.8/bin/bison -td -Wcounterexamples
 CC   = g++ -DYYDEBUG=1 -std=c++11
 
 all:	build/y.tab.cpp build/y.tab.hpp build/lex.yy.cpp
-	$(CC) -o build/hw build/y.tab.cpp build/lex.yy.cpp -ly -ll -lm
+	$(CC) -o build/hw build/y.tab.cpp build/lex.yy.cpp blocks.cpp -ly -ll -lm
 
 
 build/y.tab.cpp build/y.tab.hpp:	hw.y
