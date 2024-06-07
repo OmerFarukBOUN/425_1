@@ -31,6 +31,8 @@ std::string get_temp(){
     temp_count += 1;
     return "%temp_" + std::to_string(temp_count - 1);
 }
+Scope_t functions("function");
+Scope_t scope("variable");
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -38,7 +40,7 @@ std::string get_temp(){
 
 %define api.value.type union
 %type <int> NUMBER
-%type <const Identifier_t *> IDENTIFIER
+%type <Identifier_t *> IDENTIFIER
 %type <Array_t *> Array
 %type <IdentifierList_t *> IdentifierList NeIdentifierList
 %type <VarDecl_t *> VarDecl
@@ -46,6 +48,7 @@ std::string get_temp(){
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
 %type <Expression_t *> Factor Term Expression
 %type <ArrDecl_t *> ArrList ArrDecl
+%type <Statement_t *> Statement StatementList
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -83,7 +86,7 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
 Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
       ;
 
-ConstDecl : CONST ConstAssignmentList ';' { $$ = $2; }
+ConstDecl : CONST ConstAssignmentList ';' { $$ = $2;}
           | /* Empty */ {$$ = new ConstDecl_t();}
           ;
 
@@ -133,8 +136,8 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | error {DEBUG("Statement error\n");}
           ;
 
-StatementList : Statement { /* Process single statement */ }
-              | StatementList ';' Statement { /* Combine statements */ }
+StatementList : Statement { $$ = $1; }
+              | StatementList ';' Statement { $$ = new Statement_t(*$1 + *$3); }
               ;
 
 Condition : ODD Expression { /* Process odd condition */ }
@@ -158,7 +161,7 @@ Term : Factor { /* $$ = $1; */}
      | Term '%' Factor { /* Process modulus */ }
      ;
 
-Factor : IDENTIFIER {$$ = $1->load(get_temp());}
+Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
        | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
        | '(' Expression ')' { $$ = $2; }
        | IDENTIFIER '[' Expression ']' { /* $$ = $1; */}
