@@ -27,17 +27,6 @@ extern char linebuf[LINEBUF_LEN];
 int debug_print = 0;
 #define DEBUG(...) if(debug_print) printf(__VA_ARGS__);
 
-int temp_count = 0;
-std::string get_temp(){
-    temp_count += 1;
-    return "%temp_" + std::to_string(temp_count - 1);
-}
-
-int label_count = 0;
-std::string get_label(){
-    label_count += 1;
-    return "label_" + std::to_string(label_count - 1);
-}
 Scope_t functions("function");
 Scope_t procedures("procedure");
 Scope_t scope("variable");
@@ -52,7 +41,7 @@ std::string curr_fn_name;
 
 %define api.value.type union
 %type <int> NUMBER
-%type <Identifier_t *> IDENTIFIER
+%type <Identifier_t *> IDENTIFIER Function
 %type <Array_t *> Array
 %type <IdentifierList_t *> IdentifierList NeIdentifierList FunctionVars
 %type <VarDecl_t *> VarDecl
@@ -65,6 +54,7 @@ std::string curr_fn_name;
 %type <ProcDecl_t *> ProcDecl
 %type <Function_t *> FunctionBlock
 %type <std::vector<Expression_t*> *> ExpressionList
+%type <std::string *> NeFunctionList FunctionList
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -74,24 +64,26 @@ std::string curr_fn_name;
 %debug
 %%
 
-Program : FunctionList Block '.' YYEOF { printf("Parsed successfully.\n"); exit(0); }
+Program : FunctionList Block '.' YYEOF { std::cout << *$1 + $2->make_code(); }
         | FunctionList Block YYEOF { printf("Missing '.' at the end of file.\n"); exit(1); }
         ;
 
-FunctionList : NeFunctionList
-             | /* empty */
+FunctionList : NeFunctionList {$$ = $1;}
+             | /* empty */ {$$ = new std::string;}
              ;
 
-NeFunctionList : FunctionBlock
-             | NeFunctionList FunctionBlock
+NeFunctionList : FunctionBlock {$$ = new std::string($1->make_code());}
+             | NeFunctionList FunctionBlock {$$ = $1; *$1 += $2->make_code();}
              ;
 
-FunctionBlock : FUNCTION IDENTIFIER FunctionVars DO Block '.' { $$=new Function_t($2, $3, $5); functions.add($2); }
+Function: FUNCTION IDENTIFIER {$$ = $2; curr_fn_name = $2->name;}
+
+FunctionBlock : Function FunctionVars DO Block '.' {$$=new Function_t($1, $2, $4);functions.add($1);}
               ;
 
 FunctionVars : '(' IdentifierList ')' {$$ = $2; $$->add_to_scope(scope);}
 
-IdentifierList : NeIdentifierList {$$ = $1; std::cout << *$$ << "\n";}
+IdentifierList : NeIdentifierList {$$ = $1;}
                | /* empty */ {$$ = new IdentifierList_t;}
                ;
 
@@ -141,41 +133,47 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { $$ = $1; $$->insert(new
 
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
-          | CALL IDENTIFIER { /* Process function call statement */ }
+          | CALL IDENTIFIER {
+              std::string callback = get_label();
+              callbacks.push_back(callback);
+              std::string code = "br label %" + callback + "\n"
+                  + "call void(ptr)* @push(ptr blockaddress(@" + curr_fn_name + ", %"+callback+"))"
+                  + "br label %" + $2->name;
+          }
           | BEGIN_ StatementList END { $$ = $2;}
           | IF Condition THEN Statement '!' {
-          std::string current = get_label();
-          std::string end = get_label();
-          std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n";
-          code += current + ":\n";
-          code += $4->code;
-          code += end + ":\n";
-          $$ = new Statement_t(code);
+              std::string current = get_label();
+              std::string end = get_label();
+              std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n";
+              code += current + ":\n";
+              code += $4->code;
+              code += end + ":\n";
+              $$ = new Statement_t(code);
           }
           | IF Condition THEN Statement ELSE Statement '!' {
-          std::string current = get_label();
-          std::string else_label = get_label();
-          std::string end_label;
-          std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n";
-          code += current + ":\n";
-          code += $4->code;
-          code += "br label " + end_label + "\n";
-          code += else_label + ":\n";
-          code += $6->code + end_label + ":\n";
-          $$ = new Statement_t(code);
+              std::string current = get_label();
+              std::string else_label = get_label();
+              std::string end_label;
+              std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n";
+              code += current + ":\n";
+              code += $4->code;
+              code += "br label " + end_label + "\n";
+              code += else_label + ":\n";
+              code += $6->code + end_label + ":\n";
+              $$ = new Statement_t(code);
           }
           | WHILE Condition DO Statement {
-          std::string current = get_label();
-          std::string continue = get_label();
-          std::string end = get_label();
-          std::string code = current + ":\n";
-          code += $2->code;
-          code += "br i32 " + $2->result_var + ", label " + continue + ", label " + end + "\n";
-          code += continue + ":\n";
-          code += $4->code;
-          code += "br label " + current + "\n";
-          code += end + ":\n";
-          $$ = new Statement_t(code);
+              std::string current = get_label();
+              std::string cont = get_label();
+              std::string end = get_label();
+              std::string code = current + ":\n";
+              code += $2->code;
+              code += "br i32 " + $2->result_var + ", label " + cont + ", label " + end + "\n";
+              code += cont + ":\n";
+              code += $4->code;
+              code += "br label " + current + "\n";
+              code += end + ":\n";
+              $$ = new Statement_t(code);
           }
           | FOR IDENTIFIER AS Expression TO Expression DO Statement { /* Process for loop */ }
           | BREAK { /* Process break statement */ }
@@ -258,7 +256,7 @@ Term : Factor {  $$ = $1; }
      ;
 
 Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
-       | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
+       | NUMBER {$$ = new Expression_t("", std::to_string($1)); }
        | '(' Expression ')' { $$ = $2; }
        | IDENTIFIER '[' Expression ']' {
                 std::string current = get_temp();
@@ -272,7 +270,7 @@ Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
 
 FuncCall : IDENTIFIER '(' ExpressionList ')' {
     auto current = get_temp();
-    auto code = "call void @" + $1->name + "(";
+    auto code = "call i32 @" + $1->name + "(";
     bool first = true;
     for(auto expr: *$3) {
         if (first) {
@@ -280,14 +278,14 @@ FuncCall : IDENTIFIER '(' ExpressionList ')' {
         } else {
             code += ", ";
         }
-        code += "i32" + expr->result_var;
+        code += "i32 " + expr->result_var;
     }
     code += ")\n";
     $$ = new Expression_t(code, current);
 };
 
 ExpressionList : Expression { $$ = new std::vector<Expression_t*>(1, $1); }
-               | ExpressionList ';' Expression { $$ = $1; $1->push_back($3); }
+               | ExpressionList ',' Expression { $$ = $1; $1->push_back($3); }
                | /* Empty */ { $$ = new std::vector<Expression_t*>(); }
                ;
 
