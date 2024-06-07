@@ -172,14 +172,31 @@ Term : Factor { /* $$ = $1; */}
 Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
        | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
        | '(' Expression ')' { $$ = $2; }
-       | IDENTIFIER '[' Expression ']' {std::string current = get_temp(); std::string code = current + " = getelementptr i32*" + $1->llvm_name + ", i32 " + $3->result_var + "\n"; $$ = new Expression_t(code, current); }
+       | IDENTIFIER '[' Expression ']' {
+                std::string current = get_temp();
+                std::string code = current + " = getelementptr i32*" + $1->llvm_name + ", i32 " + $3->result_var + "\n";
+                $$ = new Expression_t(code, current);
+            }
        | FuncCall { $$ = $1;}
        | error {DEBUG("Factor error\n");}
        | ERR
        ;
 
-FuncCall : IDENTIFIER '(' ExpressionList ')' { std::string current = get_temp(); std::string code = ""; int i; for(i=0; i < $3->size()-1; i++) {code += "i32" + $3->at(i)->result_var + ", ";} code +=$3->at(i)->result_var+ "/n"; $$ = new Expression_t(code, current); }
-         ;
+FuncCall : IDENTIFIER '(' ExpressionList ')' {
+    auto current = get_temp();
+    auto code = "call void @" + $1->name + "(";
+    bool first = true;
+    for(auto expr: *$3) {
+        if (first) {
+            first = false;
+        } else {
+            code += ", ";
+        }
+        code += "i32" + expr->result_var;
+    }
+    code += ")\n";
+    $$ = new Expression_t(code, current);
+};
 
 ExpressionList : Expression { /* Process single expression */ }
                | ExpressionList ';' Expression { /* Combine expressions */ }

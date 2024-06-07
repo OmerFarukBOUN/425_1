@@ -129,8 +129,9 @@ std::string Function_t::make_code() const {
     bool first = true;
     for (const auto &item: identifiers->id_list) {
         if (first) {
-            str += ", ";
             first = false;
+        } else {
+            str += ", ";
         }
         str += "i32 " + item->llvm_name;
     }
