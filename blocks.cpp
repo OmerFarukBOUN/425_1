@@ -37,7 +37,7 @@ std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids) {
 std::string VarDecl_t::make_code() const {
     std::string code;
     for (const auto &item: ids->id_list) {
-        code += item.llvm_name + " = alloca i32, align 4\n";
+        code += item->llvm_name + " = alloca i32, align 4\n";
     }
     return code;
 }
