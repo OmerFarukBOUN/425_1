@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <vector>
 #include <unordered_set>
 #include <iostream>
 #include "../blocks.hpp"
@@ -47,9 +48,10 @@ Scope_t scope("variable");
 %type <VarDecl_t *> VarDecl
 %type <Const_t *> Assignment
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
-%type <Expression_t *> Factor Term Expression
+%type <Expression_t *> Factor Term Expression FuncCall ERR
 %type <ArrDecl_t *> ArrList ArrDecl
 %type <Statement_t *> Statement StatementList
+%type <std::vector<Expression_t*> *> ExpressionList
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -132,7 +134,7 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | READ '(' IDENTIFIER ')' { /* Process read statement */ }
           | WRITE '(' Expression ')' { /* Process write statement */ }
           | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
-          | FuncCall { /* $$ = $1; */}
+          | FuncCall { /*$$ = $1;*/ }
           | /* Empty */ { /* No statement */ }
           | error {DEBUG("Statement error\n");}
           ;
@@ -165,13 +167,13 @@ Term : Factor { /* $$ = $1; */}
 Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
        | NUMBER { $$ = new Expression_t("", std::to_string($1)); }
        | '(' Expression ')' { $$ = $2; }
-       | IDENTIFIER '[' Expression ']' { /* $$ = $1; */}
-       | FuncCall { /* $$ = $1; */}
+       | IDENTIFIER '[' Expression ']' {std::string current = get_temp(); std::string code = current + " = getelementptr i32*" + $1->llvm_name + ", i32 " + $3->result_var + "\n"; $$ = new Expression_t(code, current); }
+       | FuncCall { $$ = $1;}
        | error {DEBUG("Factor error\n");}
        | ERR
        ;
 
-FuncCall : IDENTIFIER '(' ExpressionList ')' { /* Process function call */ }
+FuncCall : IDENTIFIER '(' ExpressionList ')' { std::string current = get_temp(); std::string code = ""; int i; for(i=0; i < $3->size()-1; i++) {code += "i32" + $3->at(i)->result_var + ", ";} code +=$3->at(i)->result_var+ "/n"; $$ = new Expression_t(code, current); }
          ;
 
 ExpressionList : Expression { /* Process single expression */ }
