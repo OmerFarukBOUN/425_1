@@ -8,14 +8,13 @@ std::ostream &operator<<(std::ostream &os, const Identifier_t &id) {
     return os;
 }
 
-void IdentifierList_t::insert(const Identifier_t *item_ptr) {
-    if (item_ptr == nullptr) return;
-    auto item = *item_ptr;
+void IdentifierList_t::insert(Identifier_t *item) {
+    if (item == nullptr) return;
     for (const auto &other: this->id_list) {
-        if (item == other) {
+        if (*item == *other) {
             char str[] = "Declared previously declared variable %s";
             char str2[1000];
-            snprintf(str2, sizeof(str2), str, item.name.c_str());
+            snprintf(str2, sizeof(str2), str, item->name.c_str());
             yyerror(str2);
         }
     }
@@ -43,6 +42,12 @@ std::string VarDecl_t::make_code() const {
     return code;
 }
 
+void VarDecl_t::add_to_scope(Scope_t& scope) const {
+    for (auto id: ids->id_list) {
+        scope.add(id);
+    }
+}
+
 void ConstDecl_t::insert(Const_t *cons) {
     if (cons == nullptr) return;
     ids->insert(cons);
@@ -67,4 +72,19 @@ std::string ArrDecl_t::make_code() const {
         code += item->id->llvm_name + " = alloca i32, i32 " + std::to_string(item->length) + "\n";
     }
     return code;
+}
+
+void Scope_t::add(Identifier_t *id) {
+    auto p = items.insert(*id);
+    if (p.second) {
+        std::string errmsg = "Declared previously declared " + type + ": " + id->name;
+        yyerror(errmsg.c_str());
+    }
+}
+
+void Scope_t::use(Identifier_t *id) {
+    if (items.find(*id) == items.end()) {
+        std::string errmsg = "Used undeclared " + type + ": " + id->name;
+        yyerror(errmsg.c_str());
+    }
 }
