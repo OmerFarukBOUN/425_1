@@ -12,7 +12,7 @@ void IdentifierList_t::insert(Identifier_t *item) {
     if (item == nullptr) return;
     for (const auto &other: this->id_list) {
         if (*item == *other) {
-            char str[] = "Declared previously declared variable %s";
+            char str[] = "Declared previously declared identifier %s";
             char str2[1000];
             snprintf(str2, sizeof(str2), str, item->name.c_str());
             yyerror(str2);
@@ -68,14 +68,15 @@ std::string ConstDecl_t::make_code() const {
     return code;
 }
 
-void ArrDecl_t::insert(Array_t *) {
-
+void ArrDecl_t::insert(Array_t *array) {
+    ids->insert(array);
+    arrays.push_back(array);
 }
 
 std::string ArrDecl_t::make_code() const {
     std::string code;
     for (const auto &item: arrays) {
-        code += item->id->llvm_name + " = alloca i32, i32 " + std::to_string(item->length) + "\n";
+        code += item->llvm_name + " = alloca i32, i32 " + std::to_string(item->length) + "\n";
     }
     return code;
 }
@@ -104,8 +105,43 @@ Block_t::Block_t(ConstDecl_t *constDecl, VarDecl_t *varDecl, ArrDecl_t *arrDecl,
                                            statement(statement) {
 }
 
-void Block_t::remove_from_scope(Scope_t &scope) const {
+void Block_t::remove_from_scope(Scope_t &scope, Scope_t &proc_scope, Scope_t &array_scope) const {
     constDecl->remove_from_scope(scope);
     varDecl->remove_from_scope(scope);
+    procDecl->remove_from_scope(proc_scope);
+    arrDecl->remove_from_scope(array_scope);
+}
 
+std::string Block_t::make_code() const {
+    return constDecl->make_code()
+           + varDecl->make_code()
+           + procDecl->make_code()
+           + arrDecl->make_code()
+           + statement->make_code();
+}
+
+Function_t::Function_t(Identifier_t *id, IdentifierList_t *identifiers, Block_t *block) : id(id),
+                                                                                          identifiers(identifiers),
+                                                                                          block(block) {}
+
+std::string Function_t::make_code() const {
+    auto str = "declare i32 @" + id->name + "(  ";
+    bool first = true;
+    for (const auto &item: identifiers->id_list) {
+        if (first) {
+            str += ", ";
+            first = false;
+        }
+        str += "i32 " + item->llvm_name;
+    }
+    str += ") {\n" +
+           block->make_code()
+           + "ret 0"
+           + "}";
+    return str;
+}
+
+void ProcDecl_t::insert(Proc_t *proc) {
+    ids->insert(proc->id);
+    procs.push_back(proc);
 }

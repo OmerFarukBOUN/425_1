@@ -34,6 +34,7 @@ std::string get_temp(){
 Scope_t functions("function");
 Scope_t procedures("procedure");
 Scope_t scope("variable");
+Scope_t arrays("array");
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -43,13 +44,16 @@ Scope_t scope("variable");
 %type <int> NUMBER
 %type <Identifier_t *> IDENTIFIER
 %type <Array_t *> Array
-%type <IdentifierList_t *> IdentifierList NeIdentifierList
+%type <IdentifierList_t *> IdentifierList NeIdentifierList FunctionVars
 %type <VarDecl_t *> VarDecl
 %type <Const_t *> Assignment
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
 %type <Expression_t *> Factor Term Expression
 %type <ArrDecl_t *> ArrList ArrDecl
 %type <Statement_t *> Statement StatementList
+%type <Block_t *> Block
+%type <ProcDecl_t *> ProcDecl
+%type <Function_t *> FunctionBlock
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -68,12 +72,13 @@ FunctionList : NeFunctionList
              ;
 
 NeFunctionList : FunctionBlock
-             | NeFunctionList FunctionBlock { /* Combine function blocks */ }
+             | NeFunctionList FunctionBlock
              ;
 
-FunctionBlock : FUNCTION IDENTIFIER '(' IdentifierList ')' DO Block '.' { /* Process function block */ }
-              | FUNCTION error '.'
+FunctionBlock : FUNCTION IDENTIFIER FunctionVars DO Block '.' { $$=new Function_t($2, $3, $5); functions.add($2); }
               ;
+
+FunctionVars : '(' IdentifierList ')' {$$ = $2; $$->add_to_scope(scope);}
 
 IdentifierList : NeIdentifierList {$$ = $1; std::cout << *$$ << "\n";}
                | /* empty */ {$$ = new IdentifierList_t;}
@@ -84,7 +89,7 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
                | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->insert($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { /* Process block */ }
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement { $$ = new Block_t($1, $2, $3, $4, $5); $$->remove_from_scope(scope, procedures, arrays);}
       ;
 
 ConstDecl : CONST ConstAssignmentList ';' { $$ = $2; $$->add_to_scope(scope);}
@@ -100,11 +105,11 @@ Assignment : IDENTIFIER AS NUMBER {$$ = new Const_t($1, $3);}
            ;
 
 VarDecl : VAR NeIdentifierList ';' { $$ = new VarDecl_t($2); $$->add_to_scope(scope);}
-        | VAR error ';' { $$ = new VarDecl_t(new IdentifierList_t()); }
-        | /* Empty */ { $$ = new VarDecl_t(new IdentifierList_t()); }
+        | VAR error ';' { $$ = new VarDecl_t(); }
+        | /* Empty */ { $$ = new VarDecl_t(); }
         ;
 
-ArrDecl : ARR ArrList ';' { $$ = $2; }
+ArrDecl : ARR ArrList ';' { $$ = $2; $$->add_to_scope(arrays);}
         | /* Empty */ { $$ = new ArrDecl_t(); }
         ;
 
@@ -115,8 +120,8 @@ ArrList : Array { $$ = new ArrDecl_t(); $$->insert($1); }
 Array : IDENTIFIER '[' NUMBER ']' { $$ = new Array_t($1, $3); }
       ;
 
-ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { /* Process procedure declaration */ }
-         | /* Empty */ { /* No procedure declaration */ }
+ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { }
+         | /* Empty */ { $$ = new ProcDecl_t; }
          ;
 
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }

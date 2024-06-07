@@ -94,12 +94,11 @@ public:
     Const_t(const Identifier_t *id, const int val) : Identifier_t(*id), val(val) {}
 };
 
-class Array_t : public Code_t {
+class Array_t : public Identifier_t {
 public:
-    const Identifier_t *id;
     const int length;
 
-    Array_t(const Identifier_t *id, const int index) : id(id), length(index) {}
+    Array_t(const Identifier_t *id, const int index) : Identifier_t(*id), length(index) {}
 };
 
 class IdentifierList_t : public Code_t {
@@ -115,13 +114,12 @@ public:
     void remove_from_scope(Scope_t &) const;
 };
 
-class VarDecl_t : public Code_t {
+class Decl_t : public Code_t {
+
 public:
     IdentifierList_t *ids;
 
-    explicit VarDecl_t(IdentifierList_t *ids) : ids(ids) {}
-
-    std::string make_code() const override;
+    Decl_t() : ids(new IdentifierList_t()) {}
 
     void add_to_scope(Scope_t &scope) const {
         ids->add_to_scope(scope);
@@ -132,19 +130,27 @@ public:
     }
 };
 
+class VarDecl_t : public Decl_t {
+public:
+    VarDecl_t() {}
+
+    explicit VarDecl_t(IdentifierList_t *ids) {
+        this->ids = ids;
+    }
+
+    std::string make_code() const override;
+};
+
 class ConstDecl_t : public VarDecl_t {
 public:
     std::vector<Const_t *> consts;
-
-    ConstDecl_t() : VarDecl_t(new IdentifierList_t()) {}
 
     void insert(Const_t *);
 
     std::string make_code() const override;
 };
 
-
-class ArrDecl_t : public Code_t {
+class ArrDecl_t : public Decl_t {
 public:
     std::vector<Array_t *> arrays;
 
@@ -153,7 +159,16 @@ public:
     std::string make_code() const override;
 };
 
-class ProcDecl_t {
+class Proc_t : public Code_t {
+public:
+    Identifier_t *id;
+};
+
+class ProcDecl_t : public Decl_t {
+public:
+    std::vector<Proc_t *> procs;
+
+    void insert(Proc_t *);
 };
 
 class Block_t : public Code_t {
@@ -166,7 +181,22 @@ public:
     Block_t(ConstDecl_t *constDecl, VarDecl_t *varDecl, ArrDecl_t *arrDecl, ProcDecl_t *procDecl,
             Statement_t *statement);
 
-    void remove_from_scope(Scope_t &scope) const;
+    void remove_from_scope(Scope_t &scope, Scope_t &proc_scope, Scope_t &array_scope) const;
+
+    std::string make_code() const override;
+
+};
+
+class Function_t : public Code_t {
+public:
+    Identifier_t *id;
+    IdentifierList_t *identifiers;
+    Block_t *block;
+
+    Function_t(Identifier_t *id, IdentifierList_t *identifiers, Block_t *block);
+
+    std::string make_code() const override;
+
 };
 
 #endif //INC_425_1_BLOCKS_H
