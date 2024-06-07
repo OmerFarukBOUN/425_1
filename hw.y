@@ -135,10 +135,41 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { }
 Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER { /* Process function call statement */ }
-          | BEGIN_ StatementList END { /* Process compound statement */ }
-          | IF Condition THEN Statement '!' { std::string current = get_label(); std::string end = get_label(); std::string code = "br i32 " + $2->result_var + ", " + current + ", " + end + "\n" + current + ":\n" + $4->code + end + ":\n"; $$ = new Statement_t(code); }
-          | IF Condition THEN Statement ELSE Statement '!' {std::string current = get_label(); std::string else_label = get_label(); std::string end_label; std::string code = "br i32 " + $2->result_var + ", " + current + ", " + else_label + "\n" + current + ":\n" + $4->code + "br label" + end_label + "\n" + else_label + ":\n" + $6->code + end_label + ":\n"; $$ = new Statement_t(code);}
-          | WHILE Condition DO Statement { /* Process while loop */ }
+          | BEGIN_ StatementList END { $$ = $2;}
+          | IF Condition THEN Statement '!' {
+          std::string current = get_label();
+          std::string end = get_label();
+          std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n";
+          code += current + ":\n";
+          code += $4->code;
+          code += end + ":\n";
+          $$ = new Statement_t(code);
+          }
+          | IF Condition THEN Statement ELSE Statement '!' {
+          std::string current = get_label();
+          std::string else_label = get_label();
+          std::string end_label;
+          std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n";
+          code += current + ":\n";
+          code += $4->code;
+          code += "br label " + end_label + "\n";
+          code += else_label + ":\n";
+          code += $6->code + end_label + ":\n";
+          $$ = new Statement_t(code);
+          }
+          | WHILE Condition DO Statement {
+          std::string current = get_label();
+          std::string continue = get_label();
+          std::string end = get_label();
+          std::string code = current + ":\n";
+          code += $2->code;
+          code += "br i32 " + $2->result_var + ", label " + continue + ", label " + end + "\n";
+          code += continue + ":\n";
+          code += $4->code;
+          code += "br label " + current + "\n";
+          code += end + ":\n";
+          $$ = new Statement_t(code);
+          }
           | FOR IDENTIFIER AS Expression TO Expression DO Statement { /* Process for loop */ }
           | BREAK { /* Process break statement */ }
           | RETURN Expression { /* Process return statement */ }
@@ -155,24 +186,68 @@ StatementList : Statement { $$ = $1; }
               ;
 
 Condition : ODD Expression { std::string current = get_temp(); std::string code = current + " = srem i32 " + $2->result_var + ", 2\n"; $$ = new Expression_t(code, current);}
-          | Expression '=' Expression { std::string current = get_temp(); std::string code = current + " = icmp eq i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-          | Expression NE Expression { std::string current = get_temp(); std::string code = current + " = icmp ne i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-          | Expression '<' Expression { std::string current = get_temp(); std::string code = current + " = icmp slt i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-          | Expression '>' Expression { std::string current = get_temp(); std::string code = current + " = icmp sgt i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-          | Expression LE Expression { std::string current = get_temp(); std::string code = current + " = icmp sle i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-          | Expression GE Expression { std::string current = get_temp(); std::string code = current + " = icmp sge i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+          | Expression '=' Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp eq i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
+          | Expression NE Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp ne i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
+          | Expression '<' Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp slt i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
+          | Expression '>' Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp sgt i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
+          | Expression LE Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp sle i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
+          | Expression GE Expression {
+          std::string current = get_temp();
+          std::string code = current + " = icmp sge i32 " + $1->result_var + ", " + $3->result_var + "\n";
+          $$ = new Expression_t(code, current);
+          }
           | error {DEBUG("Condition error\n");}
           ;
 
 Expression : Term { $$ = $1;}
-           | Expression '+' Term { std::string current = get_temp(); std::string code = current + " = add i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-           | Expression '-' Term { std::string current = get_temp(); std::string code = current + " = sub i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+           | Expression '+' Term {
+           std::string current = get_temp();
+           std::string code = current + " = add i32 " + $1->result_var + ", " + $3->result_var + "\n";
+           $$ = new Expression_t(code, current);
+           }
+           | Expression '-' Term {
+           std::string current = get_temp();
+           std::string code = current + " = sub i32 " + $1->result_var + ", " + $3->result_var + "\n";
+           $$ = new Expression_t(code, current);
+           }
            ;
 
 Term : Factor {  $$ = $1; }
-     | Term '*' Factor { std::string current = get_temp(); std::string code = current + " = mul i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-     | Term '/' Factor { std::string current = get_temp(); std::string code = current + " = sdiv i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
-     | Term '%' Factor { std::string current = get_temp(); std::string code = current + " = srem i32 " + $1->result_var + ", " + $3->result_var + "\n"; $$ = new Expression_t(code, current);}
+     | Term '*' Factor {
+     std::string current = get_temp();
+     std::string code = current + " = mul i32 " + $1->result_var + ", " + $3->result_var + "\n";
+     $$ = new Expression_t(code, current);
+     }
+     | Term '/' Factor {
+     std::string current = get_temp();
+     std::string code = current + " = sdiv i32 " + $1->result_var + ", " + $3->result_var + "\n";
+     $$ = new Expression_t(code, current);
+     }
+     | Term '%' Factor {
+     std::string current = get_temp();
+     std::string code = current + " = srem i32 " + $1->result_var + ", " + $3->result_var + "\n";
+     $$ = new Expression_t(code, current);
+     }
      ;
 
 Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
