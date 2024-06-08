@@ -120,8 +120,8 @@ Function: FUNCTION IDENTIFIER {$$ = $2; curr_fn_name = $2->name;}
 
 FunctionBlock : Function FunctionVars DO Block '.' {
               $$=new Function_t($1, $2, $4);
-              FuncIdentifier_t* function = new FuncIdentifier_t($1, $2->size());
-              functions.add(function);
+              $1->arg_count = $2->size();
+              functions.add($1);
               }
               ;
 
@@ -391,6 +391,7 @@ FuncCall : IDENTIFIER '(' ExpressionList ')' {
     bool first = true;
     if (functions.get_arg_size($1) != $3->size()) {
         std::string errmsg = "Error: Function " + $1->name + " called with wrong number of arguments\n";
+        printf("Parsed\n");
         DEBUG("%s", errmsg.c_str());
     }
     for(auto expr: *$3) {
@@ -432,7 +433,8 @@ int main(int argc, char *argv[]) {
     } else if(argc>1){
         in = argv[1];
     } else {
-        sprintf(in, "%s", "test.txt");
+        std::string temp = "test.txt";
+        in = &temp[0];
     }
     freopen(in, "r", stdin);
     char* pos = last_strchr(in, '.');
@@ -443,7 +445,6 @@ int main(int argc, char *argv[]) {
         asd = std::string(in);
     }
     out = std::ofstream(asd + ".ll");
-
     yyparse();
 
     if(optimised){

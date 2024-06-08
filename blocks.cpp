@@ -140,8 +140,7 @@ int Scope_t::get_arg_size(Identifier_t *id) const {
             return -1;
         }
         Identifier_t* item = const_cast<Identifier_t*>(&(*it));
-        FuncIdentifier_t *func = dynamic_cast<FuncIdentifier_t *>(item);
-        return func->arg_count;
+        return item->arg_count;
     }
     return -1;
 }

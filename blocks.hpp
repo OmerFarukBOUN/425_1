@@ -54,6 +54,7 @@ class Identifier_t : public Code_t {
 public:
     const std::string name;
     const std::string llvm_name;
+    int arg_count;
 
     Identifier_t(char *begin, char *end) : name(begin, end), llvm_name("%" + name) {}
 
@@ -69,13 +70,6 @@ public:
     bool operator!=(const Identifier_t &rhs) const {
         return !(rhs == *this);
     }
-};
-
-class FuncIdentifier_t : public Identifier_t {
-public:
-    const int arg_count;
-
-    FuncIdentifier_t(const Identifier_t *id, const int arg_count) : Identifier_t(*id), arg_count(arg_count) {}
 };
 
 template<>
