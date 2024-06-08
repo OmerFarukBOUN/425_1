@@ -37,6 +37,29 @@ Scope_t arrays("array");
 
 std::vector<std::string> callbacks;
 std::string curr_fn_name;
+
+int optimised = 0;
+std::ofstream out;
+
+static char *last_strchr(char *haystack, char needle)
+{
+    if (needle == '\0')
+        return (char *) haystack;
+
+    char *result = NULL;
+    for (;;) {
+        char *p = strchr(haystack, needle);
+        if (p == NULL)
+            break;
+        result = p;
+        haystack = p + 1;
+    }
+
+    return result;
+}
+
+std::ifstream preamble("preamble.ll");
+
 %}
 
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
@@ -317,8 +340,32 @@ int yyerror(const char *s) {
 }
 int main(int argc, char *argv[]) {
     yydebug=argc>1&&argv[1][0]=='-'&&argv[1][1]=='t';
-    debug_print=argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
+    debug_print = argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
+    optimised = argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
+    char* in;
+    if(argc>2&&argv[1][0]=='-'){
+        in = argv[2];
+    } else if(argc>1){
+        in = argv[1];
+    } else {
+        in = "test.txt";
+    }
+    freopen(in, "r", stdin);
+    char* pos = last_strchr(in, '.');
+    std::string asd;
+    if(pos != NULL){
+        asd = std::string(in, pos);
+    } else {
+        asd = std::string(in);
+    }
+    out = std::ofstream(asd + ".s");
+
     yyparse();
+
+    if(optimised){
+
+    }
+
     return 0;
 }
 
