@@ -1,0 +1,33 @@
+function test(a, b) do
+    begin
+        read(a);
+        writeline(a * 2 + b * 4)
+    end
+.
+function test2(n) do
+    var fact;
+    procedure factorial;
+    procedure dec;
+    begin
+        fact := fact + 1;
+    end;
+    begin
+      fact := 1;
+      for i := 1 to n do
+      begin
+        writeline(i);
+        fact := fact * i;
+        writeline(fact);
+        call dec;
+        writeline(fact);
+      end;
+    end;
+
+    begin
+        call factorial;
+        writeline(fact);
+    end
+.
+var i, s;
+test2(4)
+.
