@@ -118,7 +118,11 @@ NeFunctionList : FunctionBlock {$$ = new std::string($1->make_code());}
 
 Function: FUNCTION IDENTIFIER {$$ = $2; curr_fn_name = $2->name;}
 
-FunctionBlock : Function FunctionVars DO Block '.' {$$=new Function_t($1, $2, $4);functions.add($1);}
+FunctionBlock : Function FunctionVars DO Block '.' {
+              $$=new Function_t($1, $2, $4);
+              FuncIdentifier_t* function = new FuncIdentifier_t($1, $2->size());
+              functions.add(function);
+              }
               ;
 
 FunctionVars : '(' IdentifierList ')' {$$ = $2; $$->add_to_scope(scope);}
@@ -229,7 +233,6 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               std::string end = *$1;
               if (end != label_stack.top()) {
                 DEBUG("Error: While statement not in while block\n")
-                exit(1);
               }
               std::string code = "br label %" + current +"\n"
                    + current + ":\n"
@@ -253,7 +256,6 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               auto cond = get_temp();
               if (end != label_stack.top()) {
                 DEBUG("Error: For statement not in for block\n")
-                exit(1);
               }
               std::string code = $4->make_code()
                    + $6->make_code()
@@ -387,6 +389,10 @@ FuncCall : IDENTIFIER '(' ExpressionList ')' {
     auto current = get_temp();
     auto code = "call i32 @" + $1->name + "(";
     bool first = true;
+    if (functions.get_arg_size($1) != $3->size()) {
+        std::string errmsg = "Error: Function " + $1->name + " called with wrong number of arguments\n";
+        DEBUG("%s", errmsg.c_str());
+    }
     for(auto expr: *$3) {
         if (first) {
             first = false;

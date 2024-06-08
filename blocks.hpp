@@ -71,6 +71,13 @@ public:
     }
 };
 
+class FuncIdentifier_t : public Identifier_t {
+public:
+    const int arg_count;
+
+    FuncIdentifier_t(const Identifier_t *id, const int arg_count) : Identifier_t(*id), arg_count(arg_count) {}
+};
+
 template<>
 struct std::hash<Identifier_t> {
     std::size_t operator()(const Identifier_t &k) const {
@@ -91,6 +98,8 @@ public:
     void remove(Identifier_t *id);
 
     friend std::ostream &operator<<(std::ostream &os, const Scope_t &scope);
+
+    int get_arg_size(Identifier_t *id) const;
 };
 
 class Const_t : public Identifier_t {
@@ -118,6 +127,10 @@ public:
     void add_to_scope(Scope_t &) const;
 
     void remove_from_scope(Scope_t &) const;
+
+    int size() const {
+        return id_list.size();
+    }
 };
 
 class Decl_t : public Code_t {

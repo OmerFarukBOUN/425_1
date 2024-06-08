@@ -127,6 +127,21 @@ void Scope_t::remove(Identifier_t *id) {
     items.erase(*id);
 }
 
+int Scope_t::get_arg_size(Identifier_t *id) const {
+    if (type == "function") {
+        auto it = items.find(*id);
+        if (it == items.end()) {
+            std::string errmsg = "Used undeclared " + type + ": " + id->name;
+            yyerror(errmsg.c_str());
+            return -1;
+        }
+        Identifier_t* item = const_cast<Identifier_t*>(&(*it));
+        FuncIdentifier_t *func = dynamic_cast<FuncIdentifier_t *>(item);
+        return func->arg_count;
+    }
+    return -1;
+}
+
 Block_t::Block_t(ConstDecl_t *constDecl, VarDecl_t *varDecl, ArrDecl_t *arrDecl, ProcDecl_t *procDecl,
                  Statement_t *statement) : constDecl(constDecl), varDecl(varDecl), arrDecl(arrDecl), procDecl(procDecl),
                                            statement(statement) {
