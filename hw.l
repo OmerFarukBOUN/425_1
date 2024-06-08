@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-int yyerror(const char *s);
+int yyerror2(const char *s);
 int yycolumn = 1;
 #define LINEBUF_LEN 256
 char linebuf[LINEBUF_LEN] = {0};
@@ -61,7 +61,7 @@ char linebuf[LINEBUF_LEN] = {0};
 ":="             { return AS; }
 [ \t]          ; // Skip whitespace and newline characters
 \n               {yycolumn = 1; memset(linebuf, 0, LINEBUF_LEN);}
-[0-9]+[a-zA-Z]+  { yyerror ("invalid token"); return ERR; }
+[0-9]+[a-zA-Z]+  { yyerror2("invalid token"); return ERR; }
 [a-zA-Z][a-zA-Z0-9]* {yylval.IDENTIFIER = new Identifier_t(yytext, yytext + yyleng); return IDENTIFIER; }
 [0-9]+           {yylval.NUMBER = std::stoi(std::string(yytext, yytext + yyleng)); return NUMBER; }
 "/*"([^*]|"*"[^/])*"*/" { /* Ignore comments */ }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include "../blocks.hpp"
 }
 
@@ -16,6 +17,9 @@
 #include <stack>
 #include <unordered_set>
 #include <iostream>
+#include <fstream>
+#include <stdio.h>
+
 #include "../blocks.hpp"
 
 #define YYDEBUG 1
@@ -61,7 +65,6 @@ static char *last_strchr(char *haystack, char needle)
 std::ifstream preamble("preamble.ll");
 
 %}
-
 %token FUNCTION DO CONST VAR ARR PROCEDURE IF THEN ELSE WHILE FOR BREAK RETURN READ WRITE WRITELINE BEGIN_ END ODD CALL TO ERR
 %token IDENTIFIER NUMBER NE LE GE AS
 
@@ -90,7 +93,14 @@ std::ifstream preamble("preamble.ll");
 %debug
 %%
 
-Program : FunctionList Block '.' YYEOF { std::cout << *$1 + $2->make_code(); }
+Program : FunctionList Block '.' YYEOF {
+            out << preamble.rdbuf()
+                << *$1
+                << "define i32 @main() {\n"
+                << $2->make_code()
+                << "ret i32 0"
+                << "}";
+        }
         | FunctionList Block YYEOF { printf("Missing '.' at the end of file.\n"); exit(1); }
         ;
 
@@ -160,7 +170,7 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { $$ = $1; $$->insert(new
 While : WHILE { std::string current = get_label(); $$ = new Statement_t(current); label_stack.push(current); }
       ;
 
-Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
+Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "store i32 " + $3->result_var + ", ptr " + $1->llvm_name + "\n");}
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
           | CALL IDENTIFIER {
               std::string callback = get_label();
@@ -173,39 +183,41 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
           | IF Condition THEN Statement '!' {
               std::string current = get_label();
               std::string end = get_label();
-              std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n";
-              code += current + ":\n";
-              code += $4->code;
-              code += end + ":\n";
+              std::string code = $2->make_code()
+                   + "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n"
+                   + current + ":\n"
+                   + $4->make_code()
+                   + end + ":\n";
               $$ = new Statement_t(code);
           }
           | IF Condition THEN Statement ELSE Statement '!' {
               std::string current = get_label();
               std::string else_label = get_label();
               std::string end_label;
-              std::string code = "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n";
-              code += current + ":\n";
-              code += $4->code;
-              code += "br label " + end_label + "\n";
-              code += else_label + ":\n";
-              code += $6->code + end_label + ":\n";
+              std::string code = $2->make_code()
+                   + "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n"
+                   + current + ":\n"
+                   + $4->make_code()
+                   + "br label " + end_label + "\n"
+                   + else_label + ":\n"
+                   + $6->make_code() + end_label + ":\n";
               $$ = new Statement_t(code);
           }
           | While Condition DO Statement {
               std::string current = get_label();
               std::string continueLabel = get_label();
-              std::string end = $1->code;
+              std::string end = $1->make_code();
               if (end != label_stack.top()) {
                 DEBUG("Error: While statement not in while block\n")
                 exit(1);
               }
-              std::string code = current + ":\n";
-              code += $2->code;
-              code += "br i32 " + $2->result_var + ", label " + continueLabel + ", label " + end + "\n";
-              code += continueLabel + ":\n";
-              code += $4->code;
-              code += "br label " + current + "\n";
-              code += end + ":\n";
+              std::string code = $2->make_code()
+                   + current + ":\n"
+                   + "br i32 " + $2->result_var + ", label " + continueLabel + ", label " + end + "\n"
+                   + continueLabel + ":\n"
+                   + $4->make_code()
+                   + "br label " + current + "\n"
+                   + end + ":\n";
               $$ = new Statement_t(code);
               label_stack.pop();
           }
@@ -215,49 +227,61 @@ Statement : IDENTIFIER AS Expression { /* Process assignment statement */ }
               std::string end = get_label();
           }
           | BREAK { $$ = new Statement_t("br label " + label_stack.top() + "\n");}
-          | RETURN Expression {}
-          | READ '(' IDENTIFIER ')' { /* Process read statement */ }
-          | WRITE '(' Expression ')' { /* Process write statement */ }
-          | WRITELINE '(' Expression ')' { /* Process writeline statement */ }
-          | FuncCall { /* $$ = $1; */}
-          | /* Empty */ { /* No statement */ }
+          | RETURN Expression {$$ = new Statement_t($2->make_code() + "\nret i32 " + $2->result_var);}
+          | WRITE '(' Expression ')' {
+              auto ret = get_temp();
+              $$ = new Statement_t($3->make_code() + ret + " = call i32 (ptr, ...) @printf(ptr @.str.d, i32 "+$3->result_var+")\n");
+          }
+          | WRITELINE '(' Expression ')' {
+              auto ret = get_temp();
+              $$ = new Statement_t($3->make_code() + ret + " = call i32 (ptr, ...) @printf(ptr @.str.dn, i32 "+$3->result_var+")\n");
+          }
+          | READ '(' IDENTIFIER ')' {
+              $$ = new Statement_t(get_temp() + " = call i32 (ptr, ...) @scanf(ptr @.str.d, ptr "+$3->llvm_name+")\n");
+          }
+          | FuncCall { $$ = $1;}
+          | /* Empty */ { $$ = new Statement_t(""); }
           | error {DEBUG("Statement error\n");}
           ;
 
 StatementList : Statement { $$ = $1; }
-              | StatementList ';' Statement { $$ = new Statement_t(*$1 + *$3); }
+              | StatementList ';' Statement {$$ = new Statement_t(*$1 + *$3); }
               ;
 
-Condition : ODD Expression { std::string current = get_temp(); std::string code = current + " = srem i32 " + $2->result_var + ", 2\n"; $$ = new Expression_t(code, current);}
+Condition : ODD Expression {
+              std::string current = get_temp();
+              std::string code = current + " = srem i32 " + $2->result_var + ", 2\n";
+              $$ = new Expression_t($2->make_code() + code, current);
+          }
           | Expression '=' Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp eq i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp eq i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | Expression NE Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp ne i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp ne i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | Expression '<' Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp slt i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp slt i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | Expression '>' Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp sgt i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp sgt i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | Expression LE Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp sle i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp sle i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | Expression GE Expression {
-          std::string current = get_temp();
-          std::string code = current + " = icmp sge i32 " + $1->result_var + ", " + $3->result_var + "\n";
-          $$ = new Expression_t(code, current);
+              std::string current = get_temp();
+              std::string code = current + " = icmp sge i32 " + $1->result_var + ", " + $3->result_var + "\n";
+              $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
           }
           | error {DEBUG("Condition error\n");}
           ;
@@ -266,12 +290,12 @@ Expression : Term { $$ = $1;}
            | Expression '+' Term {
            std::string current = get_temp();
            std::string code = current + " = add i32 " + $1->result_var + ", " + $3->result_var + "\n";
-           $$ = new Expression_t(code, current);
+           $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
            }
            | Expression '-' Term {
            std::string current = get_temp();
            std::string code = current + " = sub i32 " + $1->result_var + ", " + $3->result_var + "\n";
-           $$ = new Expression_t(code, current);
+           $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
            }
            ;
 
@@ -279,17 +303,17 @@ Term : Factor {  $$ = $1; }
      | Term '*' Factor {
      std::string current = get_temp();
      std::string code = current + " = mul i32 " + $1->result_var + ", " + $3->result_var + "\n";
-     $$ = new Expression_t(code, current);
+     $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
      }
      | Term '/' Factor {
      std::string current = get_temp();
      std::string code = current + " = sdiv i32 " + $1->result_var + ", " + $3->result_var + "\n";
-     $$ = new Expression_t(code, current);
+     $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
      }
      | Term '%' Factor {
      std::string current = get_temp();
      std::string code = current + " = srem i32 " + $1->result_var + ", " + $3->result_var + "\n";
-     $$ = new Expression_t(code, current);
+     $$ = new Expression_t($1->make_code() + $3->make_code() + code, current);
      }
      ;
 

@@ -2,6 +2,7 @@
 // Created by Ilgaz on 2.06.2024.
 //
 #include "blocks.hpp"
+#include <cstdlib>
 
 int label_count = 0;
 
@@ -10,11 +11,8 @@ std::string get_label() {
     return "label_" + std::to_string(label_count - 1);
 }
 
-int temp_count = 0;
-
 std::string get_temp() {
-    temp_count += 1;
-    return "%temp_" + std::to_string(temp_count - 1);
+    return "%temp_" + std::to_string(std::rand());
 }
 
 std::ostream &operator<<(std::ostream &os, const Identifier_t &id) {
@@ -66,7 +64,7 @@ std::ostream &operator<<(std::ostream &os, const Scope_t &scope) {
 std::string VarDecl_t::make_code() const {
     std::string code;
     for (const auto &item: ids->id_list) {
-        code += item->llvm_name + " = alloca i32, align 4\n";
+        code += item->llvm_name + " = alloca i32\n";
     }
     return code;
 }
@@ -154,7 +152,7 @@ Function_t::Function_t(Identifier_t *id, IdentifierList_t *identifiers, Block_t 
                                                                                           block(block) {}
 
 std::string Function_t::make_code() const {
-    auto str = "declare i32 @" + id->name + "(  ";
+    auto str = "define i32 @" + id->name + "(  ";
     bool first = true;
     for (const auto &item: identifiers->id_list) {
         if (first) {
@@ -162,11 +160,15 @@ std::string Function_t::make_code() const {
         } else {
             str += ", ";
         }
-        str += "i32 " + item->llvm_name;
+        str += "i32 %var_" + item->name;
     }
-    str += ") {\n" +
-           block->make_code()
-           + "ret 0"
+    str += ") {\n";
+    for (const auto &item: identifiers->id_list) {
+        str += item->llvm_name + " = alloca i32\n"
+               + "store i32 %var_" + item->name + ", ptr " + item->llvm_name + "\n";
+    }
+    str += block->make_code()
+           + "ret i32 0\n"
            + "}\n";
     return str;
 }

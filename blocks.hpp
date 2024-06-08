@@ -58,7 +58,7 @@ public:
     Identifier_t(char *begin, char *end) : name(begin, end), llvm_name("%" + name) {}
 
     virtual Expression_t *load(const std::string &temp) const {
-        return new Expression_t(temp + " = load i32, ptr " + llvm_name, temp);
+        return new Expression_t(temp + " = load i32, ptr " + llvm_name + "\n", temp);
     }
 
 public:
@@ -90,7 +90,7 @@ public:
 
     void remove(Identifier_t *id);
 
-    friend std::ostream &operator<<(std::ostream &os, const Scope_t& scope);
+    friend std::ostream &operator<<(std::ostream &os, const Scope_t &scope);
 };
 
 class Const_t : public Identifier_t {
