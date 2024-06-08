@@ -180,7 +180,13 @@ For : FOR { std::string current = get_label(); $$ = new std::string(current); la
 For_Var : IDENTIFIER {$$ = $1; scope.add($1);}
 
 Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "store i32 " + $3->result_var + ", ptr " + $1->llvm_name + "\n");}
-          | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
+          | IDENTIFIER '[' Expression ']' AS Expression {
+                std::string current = get_temp();
+                std::string code = $3->make_code() + $6->make_code()
+                    + current + " = getelementptr i32*, i32* " + $1->llvm_name + ", i32 " + $3->result_var + "\n"
+                    + "store i32 " + $6->result_var + ", ptr " + current + "\n";
+                $$ = new Statement_t(code);
+            }
           | CALL IDENTIFIER {
               std::string callback = get_label();
               callbacks.push_back(callback);
@@ -251,7 +257,7 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               }
               std::string code = $4->make_code()
                    + $6->make_code()
-                   + $2->llvm_name+ " = alloca i32"
+                   + $2->llvm_name+ " = alloca i32\n"
                    + "store i32 " + $4->result_var + ", ptr " + $2->llvm_name + "\n"
                    + "br label %" + current +"\n"
                    + current + ":\n"
@@ -366,8 +372,11 @@ Factor : IDENTIFIER {scope.use($1); $$ = $1->load(get_temp());}
        | '(' Expression ')' { $$ = $2; }
        | IDENTIFIER '[' Expression ']' {
                 std::string current = get_temp();
-                std::string code = current + " = getelementptr i32*" + $1->llvm_name + ", i32 " + $3->result_var + "\n";
-                $$ = new Expression_t(code, current);
+                std::string temp = get_temp();
+                std::string code = $3->make_code()
+                    + current + " = getelementptr i32*, i32* " + $1->llvm_name + ", i32 " + $3->result_var + "\n"
+                    + temp + " = load i32, ptr " + current + "\n";
+                $$ = new Expression_t(code, temp);
             }
        | FuncCall { $$ = $1;}
        | error {DEBUG("Factor error\n");}
@@ -433,11 +442,9 @@ int main(int argc, char *argv[]) {
 
     if(optimised){
         std::string q = "/opt/homebrew/opt/llvm/bin/opt -O3 -o " + asd + ".bs " + asd + ".ll";
-        std::cout << q << "\n";
         system(q.c_str());
     } else {
         std::string q = "/opt/homebrew/opt/llvm/bin/opt -O0 -o " + asd + ".bs " + asd + ".ll";
-        std::cout << q << "\n";
         system(q.c_str());
     }
     return 0;
