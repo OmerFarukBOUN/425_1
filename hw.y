@@ -72,7 +72,7 @@ std::ifstream preamble("preamble.ll");
 
 %define api.value.type union
 %type <int> NUMBER
-%type <Identifier_t *> IDENTIFIER Function
+%type <Identifier_t *> IDENTIFIER Function For_Var
 %type <Array_t *> Array
 %type <IdentifierList_t *> IdentifierList NeIdentifierList FunctionVars
 %type <VarDecl_t *> VarDecl
@@ -80,7 +80,8 @@ std::ifstream preamble("preamble.ll");
 %type <ConstDecl_t *> ConstAssignmentList ConstDecl
 %type <Expression_t *> Factor Term Expression FuncCall Condition ERR
 %type <ArrDecl_t *> ArrList ArrDecl
-%type <Statement_t *> Statement StatementList While
+%type <Statement_t *> Statement StatementList
+%type <std::string *> While For
 %type <Block_t *> Block
 %type <ProcDecl_t *> ProcDecl
 %type <Function_t *> FunctionBlock
@@ -170,8 +171,13 @@ ProcDecl : ProcDecl PROCEDURE IDENTIFIER ';' Block ';' { $$ = $1; $$->insert(new
          | /* Empty */ { $$ = new ProcDecl_t; }
          ;
 
-While : WHILE { std::string current = get_label(); $$ = new Statement_t(current); label_stack.push(current); }
+While : WHILE { std::string current = get_label(); $$ = new std::string(current); label_stack.push(current); }
       ;
+
+For : FOR { std::string current = get_label(); $$ = new std::string(current); label_stack.push(current); }
+      ;
+
+For_Var : IDENTIFIER {$$ = $1; scope.add($1);}
 
 Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "store i32 " + $3->result_var + ", ptr " + $1->llvm_name + "\n");}
           | IDENTIFIER '[' Expression ']' AS Expression { /* Process assignment statement */ }
@@ -214,7 +220,7 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
           | While Condition DO Statement {
               std::string current = get_label();
               std::string continueLabel = get_label();
-              std::string end = $1->make_code();
+              std::string end = *$1;
               if (end != label_stack.top()) {
                 DEBUG("Error: While statement not in while block\n")
                 exit(1);
@@ -231,10 +237,38 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               $$ = new Statement_t(code);
               label_stack.pop();
           }
-          | FOR IDENTIFIER AS Expression TO Expression DO Statement {
+          | For For_Var AS Expression TO Expression DO Statement {
               std::string current = get_label();
               std::string continueLabel = get_label();
-              std::string end = get_label();
+              std::string end = *$1;
+              auto i_val_cmp = get_temp();
+              auto i_val_inc = get_temp();
+              auto i_val_inc2 = get_temp();
+              auto cond = get_temp();
+              if (end != label_stack.top()) {
+                DEBUG("Error: For statement not in for block\n")
+                exit(1);
+              }
+              std::string code = $4->make_code()
+                   + $6->make_code()
+                   + $2->llvm_name+ " = alloca i32"
+                   + "store i32 " + $4->result_var + ", ptr " + $2->llvm_name + "\n"
+                   + "br label %" + current +"\n"
+                   + current + ":\n"
+                   + i_val_cmp + " = load i32, ptr " + $2->llvm_name + "\n"
+                   + cond + " = icmp slt i32 " + i_val_cmp + ", "+$6->result_var+"\n"
+                   + "br i1 " + cond + ", label %" + continueLabel + ", label %" + end + "\n"
+                   + continueLabel + ":\n"
+                   + $8->make_code()
+                   + i_val_inc + " = load i32, ptr " + $2->llvm_name + "\n"
+                   + i_val_inc2 + " = add nsw i32 " + i_val_inc + ", 1\n"
+                   + "store i32 " + i_val_inc2 + ", ptr " + $2->llvm_name + "\n"
+                   + "br label %" + current + "\n"
+                   + "br label %" + end +"\n"
+                   + end + ":\n";
+              $$ = new Statement_t(code);
+              label_stack.pop();
+              scope.remove($2);
           }
           | BREAK { $$ = new Statement_t("br label %" + label_stack.top() + "\n");}
           | RETURN Expression {$$ = new Statement_t($2->make_code() + "\nret i32 " + $2->result_var);}
