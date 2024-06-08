@@ -448,10 +448,10 @@ int main(int argc, char *argv[]) {
     yyparse();
 
     if(optimised){
-        std::string q = "/opt/homebrew/opt/llvm/bin/opt -O3 -o " + asd + ".bs " + asd + ".ll";
+        std::string q = "opt -opaque-pointers -O3 -o " + asd + ".bs " + asd + ".ll";
         system(q.c_str());
     } else {
-        std::string q = "/opt/homebrew/opt/llvm/bin/opt -O0 -o " + asd + ".bs " + asd + ".ll";
+        std::string q = "opt -opaque-pointers -O0 -o " + asd + ".bs " + asd + ".ll";
         system(q.c_str());
     }
     return 0;
