@@ -102,7 +102,7 @@ Program : FunctionList Block '.' YYEOF {
                 << *$1
                 << "define i32 @main() {\n"
                 << $2->make_code()
-                << "ret i32 0"
+                << "ret i32 0\n"
                 << "}";
         }
         | FunctionList Block YYEOF { printf("Missing '.' at the end of file.\n"); exit(1); }
