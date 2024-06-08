@@ -203,11 +203,11 @@ std::string Proc_t::make_code() const {
         } else {
             labels_str += ", ";
         }
-        labels_str += item;
+        labels_str += "label %" + item;
     }
-    auto temp = get_label();
-    return "br label %" + id->name
-           + id->name + ":"
+    auto temp = get_temp();
+    return "br label %" + id->name + "\n"
+           + id->name + ":\n"
            + block->make_code() + "\n"
            + temp + " = call ptr()* @pop()\n"
            + "indirectbr i8* " + temp + ", [" + labels_str + "]\n";
