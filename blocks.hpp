@@ -128,9 +128,7 @@ public:
 
     void remove_from_scope(Scope_t &) const;
 
-    int size() const {
-        return id_list.size();
-    }
+    int size() const;
 };
 
 class Decl_t : public Code_t {

@@ -33,6 +33,10 @@ void IdentifierList_t::insert(Identifier_t *item) {
     id_list.push_back(item);
 }
 
+int IdentifierList_t::size() const {
+    return id_list.size();
+}
+
 std::ostream &operator<<(std::ostream &os, const IdentifierList_t &ids) {
     auto uset = ids.id_list;
     os << "{";
