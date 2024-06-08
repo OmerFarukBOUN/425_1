@@ -427,14 +427,19 @@ int main(int argc, char *argv[]) {
     } else {
         asd = std::string(in);
     }
-    out = std::ofstream(asd + ".s");
+    out = std::ofstream(asd + ".ll");
 
     yyparse();
 
     if(optimised){
-
+        std::string q = "/opt/homebrew/opt/llvm/bin/opt -O3 -o " + asd + ".bs " + asd + ".ll";
+        std::cout << q << "\n";
+        system(q.c_str());
+    } else {
+        std::string q = "/opt/homebrew/opt/llvm/bin/opt -O0 -o " + asd + ".bs " + asd + ".ll";
+        std::cout << q << "\n";
+        system(q.c_str());
     }
-
     return 0;
 }
 
