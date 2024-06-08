@@ -184,6 +184,16 @@ void ProcDecl_t::set_labels(std::vector<std::string> asd) {
     }
 }
 
+std::string ProcDecl_t::make_code() const {
+    auto end_label = get_label();
+    std::string code = "br label %" + end_label + "\n";
+    for (const auto &item: procs) {
+        code += item->make_code();
+    }
+    code += end_label + ":\n";
+    return code;
+}
+
 std::string Proc_t::make_code() const {
     std::string labels_str;
     bool first = true;

@@ -45,6 +45,8 @@ std::string curr_fn_name;
 int optimised = 0;
 std::ofstream out;
 
+int error = 0;
+
 static char *last_strchr(char *haystack, char needle)
 {
     if (needle == '\0')
@@ -94,6 +96,7 @@ std::ifstream preamble("preamble.ll");
 %%
 
 Program : FunctionList Block '.' YYEOF {
+            if(error) exit(1);
             out << preamble.rdbuf()
                 << *$1
                 << "define i32 @main() {\n"
@@ -128,7 +131,7 @@ NeIdentifierList : IDENTIFIER { $$ = new IdentifierList_t(); $$->insert($1);}
                | error ',' IDENTIFIER {$$ = new IdentifierList_t(); $$->insert($3);}
                ;
 
-Block : ConstDecl VarDecl ArrDecl ProcDecl Statement {
+Block : ConstDecl VarDecl ArrDecl ProcDecl Statement{
              $$ = new Block_t($1, $2, $3, $4, $5);
              $$->remove_from_scope(scope, procedures, arrays);
              $4->set_labels(callbacks);
@@ -175,18 +178,21 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
           | CALL IDENTIFIER {
               std::string callback = get_label();
               callbacks.push_back(callback);
-              std::string code = "br label %" + callback + "\n"
-                  + "call void(ptr)* @push(ptr blockaddress(@" + curr_fn_name + ", %"+callback+"))"
-                  + "br label %" + $2->name;
+              std::string code =
+                  "call void(ptr)* @push(ptr blockaddress(@" + curr_fn_name + ", %"+callback+"))\n"
+                  + "br label %" + $2->name + "\n"
+                  + callback + ":\n";
+              $$ = new Statement_t(code);
           }
           | BEGIN_ StatementList END { $$ = $2;}
           | IF Condition THEN Statement '!' {
               std::string current = get_label();
               std::string end = get_label();
               std::string code = $2->make_code()
-                   + "br i32 " + $2->result_var + ", label " + current + ", label " + end + "\n"
+                   + "br i1 " + $2->result_var + ", label %" + current + ", label %" + end + "\n"
                    + current + ":\n"
                    + $4->make_code()
+                   + "br label %" + end +"\n"
                    + end + ":\n";
               $$ = new Statement_t(code);
           }
@@ -195,12 +201,14 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               std::string else_label = get_label();
               std::string end_label;
               std::string code = $2->make_code()
-                   + "br i32 " + $2->result_var + ", label " + current + ", label " + else_label + "\n"
+                   + "br i1 " + $2->result_var + ", label %" + current + ", label %" + else_label + "\n"
                    + current + ":\n"
                    + $4->make_code()
-                   + "br label " + end_label + "\n"
+                   + "br label %" + end_label + "\n"
                    + else_label + ":\n"
-                   + $6->make_code() + end_label + ":\n";
+                   + $6->make_code()
+                   + "br label %" + end_label +"\n"
+                   + end_label + ":\n";
               $$ = new Statement_t(code);
           }
           | While Condition DO Statement {
@@ -211,12 +219,14 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
                 DEBUG("Error: While statement not in while block\n")
                 exit(1);
               }
-              std::string code = $2->make_code()
+              std::string code = "br label %" + current +"\n"
                    + current + ":\n"
-                   + "br i32 " + $2->result_var + ", label " + continueLabel + ", label " + end + "\n"
+                   + $2->make_code()
+                   + "br i1 " + $2->result_var + ", label %" + continueLabel + ", label %" + end + "\n"
                    + continueLabel + ":\n"
                    + $4->make_code()
-                   + "br label " + current + "\n"
+                   + "br label %" + current + "\n"
+                   + "br label %" + end +"\n"
                    + end + ":\n";
               $$ = new Statement_t(code);
               label_stack.pop();
@@ -226,7 +236,7 @@ Statement : IDENTIFIER AS Expression { $$ = new Statement_t($3->make_code() + "s
               std::string continueLabel = get_label();
               std::string end = get_label();
           }
-          | BREAK { $$ = new Statement_t("br label " + label_stack.top() + "\n");}
+          | BREAK { $$ = new Statement_t("br label %" + label_stack.top() + "\n");}
           | RETURN Expression {$$ = new Statement_t($2->make_code() + "\nret i32 " + $2->result_var);}
           | WRITE '(' Expression ')' {
               auto ret = get_temp();
@@ -360,12 +370,13 @@ int yyerror(const char *s) {
     printf("^\n");
     printf("%s at line %d column %d\n", s, yylineno, yylloc.first_column);
     printf("----\n");
+    error = 1;
     return 0;
 }
 int main(int argc, char *argv[]) {
     yydebug=argc>1&&argv[1][0]=='-'&&argv[1][1]=='t';
     debug_print = argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
-    optimised = argc>1&&argv[1][0]=='-'&&argv[1][1]=='d';
+    optimised = argc>1&&argv[1][0]=='-'&&argv[1][1]=='O';
     char* in;
     if(argc>2&&argv[1][0]=='-'){
         in = argv[2];

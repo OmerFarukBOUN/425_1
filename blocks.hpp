@@ -174,6 +174,8 @@ public:
     void insert(Proc_t *);
 
     void set_labels(std::vector<std::string>);
+
+    std::string make_code() const override;
 };
 
 class Block_t : public Code_t {
