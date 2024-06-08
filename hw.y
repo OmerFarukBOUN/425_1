@@ -426,7 +426,7 @@ int main(int argc, char *argv[]) {
     } else if(argc>1){
         in = argv[1];
     } else {
-        in = "test.txt";
+        sprintf(in, "%s", "test.txt");
     }
     freopen(in, "r", stdin);
     char* pos = last_strchr(in, '.');
